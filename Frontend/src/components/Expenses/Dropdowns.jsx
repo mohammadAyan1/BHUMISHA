@@ -17,6 +17,8 @@ const Dropdowns = () => {
     remark: "",
   });
 
+  const [files, setFiles] = useState([]);
+
   const [employees, setEmployees] = useState([]);
 
   useEffect(() => {
@@ -109,32 +111,37 @@ const Dropdowns = () => {
     e.preventDefault();
 
     if (validateForm()) {
-      console.log("Form Data:", formData);
-      // alert("submitted successfully!");
+      const fd = new FormData();
+
+      Object.keys(formData).forEach((key) => {
+        fd.append(key, formData[key]);
+      });
+
+      files.forEach((file) => {
+        fd.append("files", file);
+      });
 
       expensesAPI
-        .create(formData)
-        .then((res) => {
-          console.log(res);
-          toast("created expenses successfully");
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        .create(fd)
+        .then(() => {
+          // Reset form
+          setFormData({
+            category: "",
+            subCategory: "",
+            from: "",
+            to: "",
+            pnrNo: "",
+            location: "",
+            empName: "",
+            billNo: "",
+            amount: "",
+            remark: "",
+          });
+          setFiles([]);
 
-      // Reset form
-      setFormData({
-        category: "",
-        subCategory: "",
-        from: "",
-        to: "",
-        pnrNo: "",
-        location: "",
-        empName: "",
-        billNo: "",
-        amount: "",
-        remark: "",
-      });
+          toast("Created expenses successfully!");
+        })
+        .catch((err) => console.log(err));
     }
   };
 
@@ -323,7 +330,7 @@ const Dropdowns = () => {
               >
                 <option value="">Select Employee</option>
                 {employees.map((employee) => (
-                  <option key={employee.id} value={employee.id}>
+                  <option key={employee.id} value={employee.name}>
                     {employee.name}
                   </option>
                 ))}
@@ -572,6 +579,34 @@ const Dropdowns = () => {
 
             {/* Dynamic Fields Based on Category */}
             {renderDynamicFields()}
+
+            {/* FILE UPLOAD SECTION */}
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Upload Files / Images
+              </label>
+
+              <input
+                type="file"
+                multiple
+                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+                onChange={(e) => setFiles([...e.target.files])}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+              />
+
+              {files.length > 0 && (
+                <div className="mt-3 bg-gray-50 p-3 rounded-md border">
+                  <p className="text-sm font-medium text-gray-700 mb-2">
+                    Selected Files:
+                  </p>
+                  <ul className="list-disc pl-5 text-sm text-gray-600">
+                    {Array.from(files).map((file, index) => (
+                      <li key={index}>{file.name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
 
             <div className="mt-8">
               <button

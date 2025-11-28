@@ -52,6 +52,9 @@ const PurchaseForm = ({ onSaved }) => {
   const [billImageFile, setBillImageFile] = useState(null);
   const [billImagePreview, setBillImagePreview] = useState("");
 
+  /////////////////////!SECTION
+  const [billFile, setBillFile] = useState(null);
+
   // Header
   const [header, setHeader] = useState({
     bill_date: "",
@@ -501,14 +504,17 @@ const PurchaseForm = ({ onSaved }) => {
       // Send as regular field instead of Blob
       fd.append("data", JSON.stringify(payload));
 
-      if (billImageFile) {
-        fd.append("bill_img", billImageFile);
+      // if (billImageFile) {
+      //   fd.append("bill_img", billImageFile);
+      // }
+
+      if (billFile) {
+        fd.append("bill_img", billFile);
       }
 
       if (isEditMode) {
         if (poOrder == "editpo") {
           await PurchaseAPI.update(poId, fd); // multipart PUT
-          
 
           // Update product purchase_rate side-effects
           const updates = payload.items.map((it) => {
@@ -538,7 +544,6 @@ const PurchaseForm = ({ onSaved }) => {
           navigate("/purchases");
         } else {
           await PurchaseAPI.update(poId, fd); // multipart PUT
-          
 
           // Update product purchase_rate side-effects
           const updates = payload.items.map((it) => {
@@ -604,8 +609,6 @@ const PurchaseForm = ({ onSaved }) => {
     }
   };
 
-  
-
   const isFormValid =
     String(header.bill_date || "").trim() !== "" &&
     ((header.party_type === "vendor" &&
@@ -620,6 +623,13 @@ const PurchaseForm = ({ onSaved }) => {
         Number(r.size) > 0 &&
         Number(r.rate) > 0
     );
+
+  ///////////////////////////////!SECTION
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setBillFile(file);
+  };
 
   return (
     <form onSubmit={onSubmit} className="p-3">
@@ -854,7 +864,7 @@ const PurchaseForm = ({ onSaved }) => {
                   </select>
                 </div>
 
-                <div className="flex flex-col">
+                {/* <div className="flex flex-col">
                   <label className="text-xs">Bill Image</label>
                   <input
                     type="file"
@@ -879,6 +889,24 @@ const PurchaseForm = ({ onSaved }) => {
                       className="mt-2 h-24 w-auto rounded border"
                     />
                   ) : null}
+                </div> */}
+
+                <div className="col-span-12 md:col-span-6">
+                  <label className="block text-sm font-medium mb-1">
+                    Bill Image / Document
+                  </label>
+                  <input
+                    type="file"
+                    accept="*/*"
+                    onChange={handleFileUpload}
+                    className="block w-full text-sm border p-2 rounded"
+                  />
+
+                  {billFile && (
+                    <p className="text-sm text-green-600 mt-1">
+                      Selected: {billFile.name}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

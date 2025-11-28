@@ -18,7 +18,11 @@ const PurchaseOrderForm = ({ purchaseOrder, onSubmitted }) => {
   const dispatch = useDispatch();
 
   // Generate a stable 10-digit PO number once per load
-  const [seedPoNo] = useState(() => String(Math.floor(1e9 + Math.random() * 9e9)) + String(Math.floor(Math.random() * 9)));
+  const [seedPoNo] = useState(
+    () =>
+      String(Math.floor(1e9 + Math.random() * 9e9)) +
+      String(Math.floor(Math.random() * 9))
+  );
 
   const { loading } = useSelector(
     (s) => s.purchaseOrders || { loading: false }

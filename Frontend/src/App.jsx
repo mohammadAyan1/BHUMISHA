@@ -1,4 +1,3 @@
-"use client";
 import React, { useMemo, useState } from "react";
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 // ToastContainer is mounted once at the root (see main.jsx)
@@ -8,15 +7,21 @@ import Navbar from "./components/Layout/Navbar";
 import { useAuth } from "./contexts/AuthContext";
 import { useCompany } from "./contexts/CompanyContext";
 
+// salary and incentive routes components
+
+import EmployeesPage from "./components/EmployeesPage/EmployeesPage";
+import EmployeeIDCard from "./components/EmployeeIDCard/EmployeeIDCard.jsx";
+import SalaryPage from "./components/SalaryPage/SalaryPage.jsx";
+import Incentive from "./components/Incentive/Incentive.jsx";
+import AttendenceUpdate from "./components/AttendenceUpdate/AttendenceUpdate.jsx";
+
 // Pages
 import Dashboard from "./Pages/Dashboard";
 import VendorManagement from "./Pages/VendorManagement.jsx";
 import FarmerRegistrationPage from "./Pages/FarmerRegistrationPage";
-import ProformaInvoice from "./Pages/ProformaInvoice";
+
 import Categories from "./components/categories/Categories";
 import Products from "./Pages/products/Products";
-
-import Expenses from "./Pages/Expenses.jsx";
 
 import Purchases from "./components/purchase/Purchases.jsx";
 import PurchaseEdit from "./Pages/purchase/PurchaseEdit.jsx";
@@ -29,7 +34,6 @@ import PurchaseOrders from "./components/PurchaseOrder/PurchaseOrders.jsx";
 // import Invoice from "./components/PurchaseOrder/Invoice.jsx";
 
 import SalesOrders from "./components/salesOrders/SalesOrders.jsx";
-import SalesOrderInvoice from "./components/salesOrders/SalesOrderInvoice.jsx";
 
 import CompaniesPage from "./components/Company/CompaniesPage.jsx";
 import PurchaseForm from "./components/purchase/PurchaseForm.jsx";
@@ -43,9 +47,8 @@ import TrashProduct from "./components/trashProduct/trashProduct.jsx";
 import TrashProductForm from "./components/trashProduct/trashProduct.jsx";
 import AllPurchasesReport from "./components/PurchasesReports/PurchasesReports.jsx";
 import SalesReports from "./components/SalesReports/SalesReports.jsx";
-import SalaryPage from "./components/SalaryPage/SalaryPage.jsx";
-import AttendancePage from "./components/AttendancePage/AttendancePage.jsx";
-import EmployeeList from "./components/EmployeeList/EmployeeList.jsx";
+import Expenses from "./Pages/Expenses.jsx";
+import SalaryInceptive from "./Pages/SalaryIncentive/SalaryInceptive.jsx";
 
 // Protected shell: Sidebar + Navbar + keyed Outlet
 function AppShell() {
@@ -147,9 +150,15 @@ export default function App() {
           <Route path="/company/new" element={<CompaniesPage />} />
 
           {/* salary routes */}
-          <Route path="/salary" element={<SalaryPage />} />
-          <Route path="/attendence" element={<AttendancePage />} />
-          <Route path="/employee" element={<EmployeeList />} />
+          <Route path="/salaryincentive" element={<SalaryInceptive />}>
+            <Route index element={<EmployeesPage />} />
+            <Route path="employees" element={<EmployeesPage />} />
+            <Route path="employee/:employeeId" element={<EmployeeIDCard />} />
+            <Route path="salary" element={<SalaryPage />} />
+            <Route path="incentives" element={<Incentive />} />
+            <Route path="attendance" element={<AttendenceUpdate />} />
+          </Route>
+
           <Route path="/expenses" element={<Expenses />} />
         </Route>
 

@@ -17,9 +17,10 @@ export default function Sidebar({
   };
 
   const linkClass = (path) =>
-    `flex items-center gap-3 px-4 py-2 rounded-md cursor-pointer transition-all duration-200 ${location.pathname === path
-      ? "bg-[var(--accent)] text-white"
-      : "hover:bg-[var(--secondary-bg)] text-[var(--text-color)]"
+    `flex items-center gap-3 px-4 py-2 rounded-md cursor-pointer transition-all duration-200 ${
+      location.pathname === path
+        ? "bg-[var(--accent)] text-white"
+        : "hover:bg-[var(--secondary-bg)] text-[var(--text-color)]"
     }`;
 
   // Small helper for emoji stickers
@@ -37,8 +38,9 @@ export default function Sidebar({
   // Chevron for dropdown indicator
   const Chevron = ({ open }) => (
     <span
-      className={`inline-block transition-transform duration-200 ${open ? "rotate-180" : ""
-        }`}
+      className={`inline-block transition-transform duration-200 ${
+        open ? "rotate-180" : ""
+      }`}
       aria-hidden="true"
     >
       ▼
@@ -48,8 +50,9 @@ export default function Sidebar({
   // Left chevron for collapse toggle
   const ChevronLeft = ({ rotated }) => (
     <span
-      className={`inline-block transition-transform duration-300 ${rotated ? "rotate-180" : ""
-        }`}
+      className={`inline-block transition-transform duration-300 ${
+        rotated ? "rotate-180" : ""
+      }`}
       aria-hidden="true"
     >
       ◀
@@ -85,7 +88,7 @@ export default function Sidebar({
   const handleNavClick = () => {
     try {
       if (typeof toggleSidebar === "function") toggleSidebar();
-    } catch { }
+    } catch {}
   };
 
   return (
@@ -376,18 +379,30 @@ export default function Sidebar({
           {!collapsed && "Company"}
         </Link>
 
-
         <Link
-          to="/salary"
-          className={linkClass("/salary")}
+          to="/salaryincentive"
+          className={linkClass("/salaryincentive")}
           onClick={handleNavClick}
         >
           <Sticker
-            label="Salary"
+            label="Salary Incentive"
             symbol="₹"
             decorative={collapsed ? false : true}
           />
-          {!collapsed && "Salary"}
+          {!collapsed && "Salary Incentive"}
+        </Link>
+
+        <Link
+          to="/expenses"
+          className={linkClass("/expenses")}
+          onClick={handleNavClick}
+        >
+          <Sticker
+            label="expenses"
+            symbol="₹"
+            decorative={collapsed ? false : true}
+          />
+          {!collapsed && "expenses"}
         </Link>
       </nav>
     </aside>
