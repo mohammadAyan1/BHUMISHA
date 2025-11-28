@@ -18,21 +18,13 @@ const purchaseController = {
   // Create Purchase (supports farmer) — per-company tables
   create: async (req, res) => {
     const connection = db.promise();
-    
 
     try {
-      // const code = normalize(
-      //   req.headers["x-company-code"] || req.body.company_code || ""
-      // );
-
       const code = normalize(req.headers["x-company-code"] || "");
       if (!code)
         return res.status(400).json({ error: "x-company-code required" });
       const purchasesTable = tn(code, "purchases");
       const itemsTable = tn(code, "purchase_items");
-
-      // const body = parseMixed(req);
-
       let body;
       try {
         body = JSON.parse(req.body.data);
@@ -53,8 +45,6 @@ const purchaseController = {
         farmer_name,
       } = body;
 
-      
-
       if (!Array.isArray(items) || items.length === 0) {
         return res
           .status(400)
@@ -72,21 +62,15 @@ const purchaseController = {
           .status(400)
           .json({ error: "party_type must be 'vendor' or 'farmer'" });
       }
-
       const billUrl = req.file ? `/public/uploads/${req.file.filename}` : null;
-
-      
-
       await connection.query("START TRANSACTION");
       const formattedDate = new Date(bill_date).toISOString().split("T")[0];
       const total_amount = items.reduce(
         (sum, i) => sum + Number(i.rate || 0) * Number(i.size || 0),
         0
       );
-
       let resolvedVendorId = null;
       let resolvedFarmerId = null;
-
       if (party_type === "vendor") {
         if (vendor_id) {
           resolvedVendorId = Number(vendor_id);
@@ -135,14 +119,9 @@ const purchaseController = {
           });
         }
       }
-      
-
-      // Handle PO items if this purchase is from a PO (accept both keys)
       const po_id = body.po_id || body.linked_po_id;
       const po_item_ids = items.map((i) => i.po_item_id).filter(Boolean);
-
       if (po_id && po_item_ids.length > 0) {
-        // Update PO items status: prefer 'Cancelled', fallback to 'Inactive'
         try {
           await connection.query(
             `UPDATE purchase_order_items SET status = 'Cancelled' WHERE id IN (?)`,
@@ -150,12 +129,11 @@ const purchaseController = {
           );
         } catch (e) {
           if (
-            e && (
-              e.code === 'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD' ||
-              e.code === 'WARN_DATA_TRUNCATED' ||
+            e &&
+            (e.code === "ER_TRUNCATED_WRONG_VALUE_FOR_FIELD" ||
+              e.code === "WARN_DATA_TRUNCATED" ||
               e.errno === 1265 ||
-              e.sqlState === '01000'
-            )
+              e.sqlState === "01000")
           ) {
             await connection.query(
               `UPDATE purchase_order_items SET status = 'Inactive' WHERE id IN (?)`,
@@ -165,9 +143,7 @@ const purchaseController = {
             throw e;
           }
         }
-        // Do not update purchase_orders.status to avoid ENUM mismatches; list hiding is based on items.
       }
-
       const [purchaseResult] = await connection.query(
         `INSERT INTO \`${purchasesTable}\`
          (vendor_id, farmer_id, party_type, gst_no, bill_no, bill_date, total_amount, status, bill_img)
@@ -227,7 +203,6 @@ const purchaseController = {
           ]);
         }
       }
-
       await connection.query("COMMIT");
       return res.status(201).json({
         message: "Purchase created successfully",
@@ -237,15 +212,13 @@ const purchaseController = {
     } catch (err) {
       try {
         await connection.query("ROLLBACK");
-      } catch { }
+      } catch {}
       console.error("Purchase creation error:", err);
       return res
         .status(400)
         .json({ error: err.message || "Failed to create purchase" });
     }
   },
-
-  // Update Purchase with stock sync (diff on items) — per-company tables
   update: async (req, res) => {
     const connection = db.promise();
     try {
@@ -489,9 +462,9 @@ const purchaseController = {
       try {
         const newTotal = Array.isArray(items)
           ? items.reduce(
-            (s, it) => s + Number(it.rate || 0) * Number(it.size || 0),
-            0
-          )
+              (s, it) => s + Number(it.rate || 0) * Number(it.size || 0),
+              0
+            )
           : null;
         if (newTotal !== null) {
           await connection.query(
@@ -515,7 +488,7 @@ const purchaseController = {
     } catch (err) {
       try {
         await connection.query("ROLLBACK");
-      } catch { }
+      } catch {}
       console.error("Purchase update error:", err);
       return res
         .status(400)

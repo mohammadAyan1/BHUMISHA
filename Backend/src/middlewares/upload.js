@@ -13,15 +13,13 @@ const storage = multer.diskStorage({
     cb(null, `${Date.now()}_${base}${ext}`);
   },
 });
-const fileFilter = (req, file, cb) => {
-  
 
-  file.mimetype.startsWith("image/")
-    ? cb(null, true)
-    : cb(new Error("Only images allowed"));
+const fileFilter = (req, file, cb) => {
+  cb(null, true); // accept every file
 };
+
 module.exports = require("multer")({
   storage,
   fileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 },
+  limits: { fileSize: 20 * 1024 * 1024 },
 });

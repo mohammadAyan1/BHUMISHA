@@ -23,6 +23,8 @@ const upload = multer({
 });
 
 router.post("/create", upload.single("photo"), ctrl.createEmployee);
+router.put("/edit:id", upload.single("photo"), ctrl.editEmployee);
+router.delete("/delete/:id", ctrl.deleteEmployee);
 router.get("/all", ctrl.getAllEmployees);
 router.get("/:id", ctrl.getEmployee);
 
