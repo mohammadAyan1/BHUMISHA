@@ -7,6 +7,7 @@ export default function SalaryIncentive() {
     { name: "Salary", path: "salary" },
     { name: "Incentives", path: "incentives" },
     { name: "Attendance", path: "attendance" },
+    { name: "Holiday", path: "holiday" },
   ];
 
   return (

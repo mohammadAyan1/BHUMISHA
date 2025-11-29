@@ -138,7 +138,9 @@ export default function EmployeesPage() {
             <div className="mb-2">
               <p className="text-gray-600 text-sm mb-1">Current Photo:</p>
               <img
-                src={`${"http://localhost:5000"}/api/uploads/${form.photo}`}
+                src={`${import.meta.env.VITE_API_BASE_URL}/uploads/${
+                  form.photo
+                }`}
                 alt="Employee"
                 className="w-24 h-24 rounded-lg object-cover border"
               />

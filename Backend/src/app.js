@@ -53,6 +53,7 @@ const employeesRoutes = require("./routes/employees");
 const attendanceRoutes = require("./routes/attendance");
 const incentivesRoutes = require("./routes/incentives");
 const salaryRoutes = require("./routes/salary");
+const holidayRoutes = require("./routes/holiday.routes");
 
 // ---------- Core Config ----------
 const NODE_ENV = process.env.NODE_ENV || "development";
@@ -167,6 +168,7 @@ app.use("/api/allpurchases", requireAuth, allPurchasesBillRoutes);
 app.use("/api/allsales", requireAuth, allSalesBillRoutes);
 app.use("/api/allsales-by-buyer-type", requireAuth, getAllSalesByBuyerType);
 app.use("/api/expenses", requireAuth, AllExpensesRoutes);
+app.use("/api/holiday", requireAuth, holidayRoutes);
 
 app.use("/api/employees", requireAuth, employeesRoutes);
 app.use("/api/attendance", requireAuth, attendanceRoutes);
@@ -180,7 +182,7 @@ app.use(
 
 app.use(
   "/api/src/uploads/expenses",
-  express.static(path.join(__dirname,  "uploads/expenses"))
+  express.static(path.join(__dirname, "uploads/expenses"))
 );
 
 app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));

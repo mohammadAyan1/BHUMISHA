@@ -42,7 +42,9 @@ const ExpensesList = () => {
               {data?.documents && (
                 <td>
                   <a
-                    href={`http://localhost:5000/api/${data.documents}`}
+                    href={`${import.meta.env.VITE_API_BASE_URL}/${
+                      data.documents
+                    }`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:text-blue-700"

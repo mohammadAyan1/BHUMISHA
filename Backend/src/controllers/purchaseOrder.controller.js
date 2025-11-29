@@ -333,7 +333,7 @@ const purchaseOrderController = {
           req.headers["x-company-code"] || req.query.company_code || ""
         );
         if (code) company = await Company.getByCode(code);
-      } catch { }
+      } catch {}
 
       return res.json({
         invoiceNo: `INV-${po.id}`,

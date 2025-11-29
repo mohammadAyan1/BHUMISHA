@@ -48,7 +48,9 @@ export default function EmployeeIDCard() {
         {/* Employee Photo */}
         <div className="mb-4">
           <img
-            src={`${"http://localhost:5000"}/api/uploads/${employee.photo}`}
+            src={`${import.meta.env.VITE_API_BASE_URL}/uploads/${
+              employee.photo
+            }`}
             alt="Employee"
             className="w-32 h-32 rounded-full border-4 border-[var(--accent)] object-cover"
           />

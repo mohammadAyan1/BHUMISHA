@@ -195,10 +195,9 @@ export default function CompaniesPage() {
       email: row.email || "",
       owner_name: row.owner_name || "",
       image_url: `${image_urls}${row?.image_url}`,
-      // src={`http://localhost:5000${r.image_url}`}
 
       status: row.status || "Active",
-      // bank fields are not included in company list payload; keep empty for edit
+
       bank_name: "",
       branch_name: "",
       account_number: "",

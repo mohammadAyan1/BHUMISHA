@@ -49,6 +49,7 @@ import AllPurchasesReport from "./components/PurchasesReports/PurchasesReports.j
 import SalesReports from "./components/SalesReports/SalesReports.jsx";
 import Expenses from "./Pages/Expenses.jsx";
 import SalaryInceptive from "./Pages/SalaryIncentive/SalaryInceptive.jsx";
+import Holiday from "./components/Holiday/Holiday.jsx";
 
 // Protected shell: Sidebar + Navbar + keyed Outlet
 function AppShell() {
@@ -157,6 +158,7 @@ export default function App() {
             <Route path="salary" element={<SalaryPage />} />
             <Route path="incentives" element={<Incentive />} />
             <Route path="attendance" element={<AttendenceUpdate />} />
+            <Route path="holiday" element={<Holiday />} />
           </Route>
 
           <Route path="/expenses" element={<Expenses />} />

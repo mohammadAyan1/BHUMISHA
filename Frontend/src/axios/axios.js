@@ -2,7 +2,7 @@ import axios from "axios";
 import authUtil from "../utils/auth";
 
 // Base URL: .env me VITE_API_BASE_URL set karo, e.g.
-// VITE_API_BASE_URL=http://localhost:5000/api
+
 const baseURL = import.meta.env?.VITE_API_BASE_URL;
 
 export const api = axios.create({
