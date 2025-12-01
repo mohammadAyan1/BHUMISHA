@@ -10,6 +10,7 @@ export default function EmployeesPage() {
     position: "",
     base_salary: "",
     join_date: "",
+    salary_date: "",
     photo: null,
   });
 
@@ -41,6 +42,7 @@ export default function EmployeesPage() {
     fd.append("base_salary", form.base_salary);
     fd.append("join_date", form.join_date);
     fd.append("photo", form.photo);
+    fd.append("salary_date", form.salary_date);
 
     await EmployeePageApi.edit(fd, editID);
 
@@ -65,6 +67,7 @@ export default function EmployeesPage() {
       position: employeData?.position,
       base_salary: employeData?.base_salary,
       join_date: employeData?.join_date?.slice(0, 10), // 👈 FIX
+      salary_date: employeData?.salary_date?.slice(0, 10), // 👈 FIX
       photo: employeData?.photo, // still needs fix below
     });
   };
@@ -119,7 +122,22 @@ export default function EmployeesPage() {
               type="date"
               className="w-full p-2 rounded-lg border border-gray-300 focus:border-[var(--accent)] focus:ring focus:ring-[var(--accent)]/20 outline-none"
               value={form.join_date}
+              required
               onChange={(e) => setForm({ ...form, join_date: e.target.value })}
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium text-gray-700">
+              Salary Date
+            </label>
+            <input
+              type="date"
+              className="w-full p-2 rounded-lg border border-gray-300 focus:border-[var(--accent)] focus:ring focus:ring-[var(--accent)]/20 outline-none"
+              value={form.salary_date}
+              onChange={(e) =>
+                setForm({ ...form, salary_date: e.target.value })
+              }
             />
           </div>
 

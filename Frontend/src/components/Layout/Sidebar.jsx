@@ -276,6 +276,19 @@ export default function Sidebar({
         </Link>
 
         <Link
+          to="/unit"
+          className={linkClass("/unit")}
+          onClick={handleNavClick}
+        >
+          <Sticker
+            label="Unit"
+            symbol="🎰"
+            decorative={collapsed ? false : true}
+          />
+          {!collapsed && "Unit"}
+        </Link>
+
+        <Link
           to="/product"
           className={linkClass("/product")}
           onClick={handleNavClick}
@@ -389,7 +402,7 @@ export default function Sidebar({
             symbol="₹"
             decorative={collapsed ? false : true}
           />
-          {!collapsed && "Salary Incentive"}
+          {!collapsed && "Salary&Incentive"}
         </Link>
 
         <Link

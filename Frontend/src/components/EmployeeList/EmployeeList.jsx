@@ -9,7 +9,11 @@ export default function EmployeeList({ onSelect, onEdit, onDelete, show }) {
 
   useEffect(() => {
     AttendanceAPI.getAll()
-      .then((res) => setEmployees(res.data))
+      .then((res) => {
+        console.log(res, "this is the employees data");
+
+        setEmployees(res.data);
+      })
       .catch(console.error);
   }, []);
 

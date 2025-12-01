@@ -78,7 +78,6 @@ CREATE TABLE IF NOT EXISTS tpl_sales (
   remarks TEXT NULL,
   other_amount DECIMAL(10,2) DEFAULT 0.00,
   other_note VARCHAR(255) NULL,
-  total_amount DECIMAL(10,2) DEFAULT 0.00,
   status ENUM('Active','Inactive') DEFAULT 'Active',
   company_id VARCHAR(50) NOT NULL,
   created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,

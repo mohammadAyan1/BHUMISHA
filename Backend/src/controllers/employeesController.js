@@ -1,23 +1,38 @@
 const pool = require("../config/db");
 
 function createEmployee(req, res) {
-  const { name, email, phone, position, base_salary, join_date } = req.body;
+  const { name, email, phone, position, base_salary, join_date, salary_date } =
+    req.body;
   const photo = req.file ? req.file.filename : null;
 
-  const mysqlDate = new Date(join_date)
+  const mysqlJoiningDate = new Date(join_date)
+    .toISOString()
+    .slice(0, 19)
+    .replace("T", " ");
+
+  const mysqlSalaryDate = new Date(salary_date)
     .toISOString()
     .slice(0, 19)
     .replace("T", " ");
 
   const sql = `
     INSERT INTO employees 
-    (name, email, phone, position, base_salary, join_date, photo) 
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    (name, email, phone, position, base_salary, join_date, photo,salary_date) 
+    VALUES (?, ?, ?, ?, ?, ?, ?,?)
   `;
 
   pool.query(
     sql,
-    [name, email, phone, position, base_salary, mysqlDate, photo],
+    [
+      name,
+      email,
+      phone,
+      position,
+      base_salary,
+      mysqlJoiningDate,
+      photo,
+      mysqlSalaryDate,
+    ],
     (err, result) => {
       if (err) {
         console.error(err);
@@ -30,15 +45,26 @@ function createEmployee(req, res) {
 
 function editEmployee(req, res) {
   const { id } = req.params; // <-- Make sure id comes from params
-  const { name, email, phone, position, base_salary, join_date } = req.body;
+  const { name, email, phone, position, base_salary, join_date, salary_date } =
+    req.body;
+
+  console.log(salary_date, "salary date");
 
   // If a new photo is uploaded use it, else keep old photo
   const photo = req.file ? req.file.filename : null;
 
   // Convert date only if provided
-  let mysqlDate = null;
+  let mysqlJoiningDate = null;
   if (join_date) {
-    mysqlDate = new Date(join_date)
+    mysqlJoiningDate = new Date(join_date)
+      .toISOString()
+      .slice(0, 19)
+      .replace("T", " ");
+  }
+
+  let mysqlSalaryDate = null;
+  if (salary_date) {
+    mysqlSalaryDate = new Date(salary_date)
       .toISOString()
       .slice(0, 19)
       .replace("T", " ");
@@ -53,7 +79,8 @@ function editEmployee(req, res) {
         position = ?,
         base_salary = ?,
         join_date = ?,
-        photo = COALESCE(?, photo)
+        photo = COALESCE(?, photo),
+        salary_date = ?
     WHERE id = ?;
   `;
 
@@ -65,8 +92,9 @@ function editEmployee(req, res) {
       phone,
       position,
       base_salary,
-      mysqlDate,
+      mysqlJoiningDate,
       photo,
+      mysqlSalaryDate,
       id, // 👈 FIXED (8th parameter)
     ],
     (err, result) => {
@@ -85,11 +113,12 @@ function editEmployee(req, res) {
 }
 
 function deleteEmployee(req, res) {
-  const id = Number(req.params.id); // ensure numeric ID
+  const id = Number(req.params.id);
+
   if (isNaN(id))
     return res.status(400).json({ success: false, message: "Invalid ID" });
 
-  const sql = `DELETE FROM employees WHERE id = ?`;
+  const sql = `UPDATE employees SET status = 'inactive' WHERE id = ?`;
 
   pool.query(sql, [id], (err, result) => {
     if (err) {
@@ -100,16 +129,16 @@ function deleteEmployee(req, res) {
     return res.json({
       success: true,
       affectedRows: result.affectedRows,
-      message: "Employee deleted successfully",
+      message: "Employee status changed to inactive",
     });
   });
 }
 
 function getAllEmployees(req, res) {
-  pool.query("SELECT * FROM employees ORDER BY id DESC", (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
+  const sql = `SELECT * FROM employees WHERE status = 'active' ORDER BY id DESC`;
+
+  pool.query(sql, (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
     res.json(rows);
   });
 }

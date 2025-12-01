@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import employeeAPI from "../../axios/employeeAPI";
 import expensesAPI from "../../axios/ExpensesAPI.js";
+import salaryPageAPI from "../../axios/SalaryPageAPI.js";
+import IncentiveAPI from "../../axios/IncentiveApi.js";
 import { toast } from "react-toastify";
 
 const Dropdowns = () => {
@@ -15,11 +17,41 @@ const Dropdowns = () => {
     billNo: "",
     amount: "",
     remark: "",
+    date: "",
+    expensedate: "",
+    incentive: "",
   });
+
+  const [disableBtn, setDisableBtn] = useState(false);
 
   const [files, setFiles] = useState([]);
 
   const [employees, setEmployees] = useState([]);
+
+  const handleFetchGeneratedSalary = async () => {
+    setDisableBtn(true);
+
+    const payload = {
+      employee_id: formData?.empName,
+      toDate: formData?.date,
+    };
+    await salaryPageAPI
+      .generate(payload)
+      .then((res) => {
+        console.log(res);
+        setFormData((prev) => ({
+          ...prev,
+          amount: res?.data?.data?.finalSalary,
+          incentive: res?.data?.data?.incentive,
+        }));
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        setDisableBtn(false);
+      });
+  };
 
   useEffect(() => {
     employeeAPI
@@ -45,16 +77,30 @@ const Dropdowns = () => {
       to: "",
       pnrNo: "",
       location: "",
-      empName: "",
+      empName: "", // This will now store the selected employee name
       billNo: "",
       amount: "",
       remark: "",
+      date: "",
+      expensedate: "",
+      incentive: "",
     });
     setErrors({});
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name == "subCategory" && value == "salary") {
+      const emp = employees?.find((emp) => emp?.id == formData?.empName);
+      console.log("enter");
+
+      setFormData((prev) => ({
+        ...prev,
+        amount: emp?.base_salary || "", // <-- sirf base_salary store
+      }));
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -197,7 +243,7 @@ const Dropdowns = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  PNR Number
+                  PNR/Vehicle Number
                 </label>
                 <input
                   type="text"
@@ -330,7 +376,7 @@ const Dropdowns = () => {
               >
                 <option value="">Select Employee</option>
                 {employees.map((employee) => (
-                  <option key={employee.id} value={employee.name}>
+                  <option key={employee.id} value={employee.id}>
                     {employee.name}
                   </option>
                 ))}
@@ -342,7 +388,7 @@ const Dropdowns = () => {
 
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Sub Category <span className="text-red-500">*</span>
+                Pay Type<span className="text-red-500">*</span>
               </label>
               <select
                 name="subCategory"
@@ -367,7 +413,7 @@ const Dropdowns = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Amount <span className="text-red-500">*</span>
+                  Salary <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -383,6 +429,56 @@ const Dropdowns = () => {
                   <p className="mt-1 text-sm text-red-600">{errors.amount}</p>
                 )}
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {"Incentive"} <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="incentive"
+                  value={formData.incentive}
+                  placeholder="Enter amount"
+                  onChange={handleInputChange}
+                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    errors.amount ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+                {errors.amount && (
+                  <p className="mt-1 text-sm text-red-600">{errors.amount}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Select Salary Date <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  name="date"
+                  required={formData?.subCategory === "salary"}
+                  value={formData.date}
+                  onChange={handleInputChange}
+                  placeholder="Enter amount"
+                  className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    errors.amount ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+                {errors.amount && (
+                  <p className="mt-1 text-sm text-red-600">{errors.amount}</p>
+                )}
+              </div>
+              <button
+                onClick={handleFetchGeneratedSalary}
+                className="bg-blue-700 p-1 text-white text-2xl rounded hover:bg-blue-400"
+                disabled={disableBtn}
+              >
+                Fetch Salary
+              </button>
             </div>
 
             <div>
@@ -429,7 +525,7 @@ const Dropdowns = () => {
 
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Sub Category <span className="text-red-500">*</span>
+                Bill Type <span className="text-red-500">*</span>
               </label>
               <select
                 name="subCategory"
@@ -555,7 +651,7 @@ const Dropdowns = () => {
             {/* Main Category Dropdown */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category <span className="text-red-500">*</span>
+                Expenses Type <span className="text-red-500">*</span>
               </label>
               <select
                 name="category"
@@ -606,6 +702,20 @@ const Dropdowns = () => {
                   </ul>
                 </div>
               )}
+            </div>
+
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Date
+              </label>
+
+              <input
+                name="expensedate"
+                type="date"
+                value={formData.expensedate}
+                onChange={handleCategoryChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
+              />
             </div>
 
             <div className="mt-8">

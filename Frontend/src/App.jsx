@@ -50,6 +50,7 @@ import SalesReports from "./components/SalesReports/SalesReports.jsx";
 import Expenses from "./Pages/Expenses.jsx";
 import SalaryInceptive from "./Pages/SalaryIncentive/SalaryInceptive.jsx";
 import Holiday from "./components/Holiday/Holiday.jsx";
+import Units from "./Pages/Units.jsx";
 
 // Protected shell: Sidebar + Navbar + keyed Outlet
 function AppShell() {
@@ -162,6 +163,7 @@ export default function App() {
           </Route>
 
           <Route path="/expenses" element={<Expenses />} />
+          <Route path="/unit" element={<Units />} />
         </Route>
 
         {/* Unknown to dashboard (logged-in users) */}
