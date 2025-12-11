@@ -75,42 +75,6 @@ export default function CompaniesPage() {
     return "";
   };
 
-  // const onSubmit = async (e) => {
-  //   e.preventDefault();
-  //   const v = validate();
-  //   if (v) {
-  //     toast.error(v);
-  //     return;
-  //   }
-  //   setLoading(true);
-  //   try {
-  //     const payload = {
-  //       ...form,
-  //       code: String(form.code || "")
-  //         .trim()
-  //         .toLowerCase(),
-  //     };
-  //     if (editId) {
-  //       // Company update endpoint not implemented, fallback to create for now
-  //       await companyAPI.create(payload);
-  //       toast.success("Company updated");
-  //     } else {
-  //       await companyAPI.create(payload);
-  //       toast.success("Company created");
-  //     }
-  //     localStorage.setItem("company_code", payload.code);
-  //     setSelected(payload.code);
-  //     setForm(emptyForm);
-  //     setShowForm(false);
-  //     await fetchAll();
-  //   } catch (e) {
-  //     const msg = e?.response?.data?.error || e.message || "Request failed";
-  //     toast.error(msg);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const onSubmit = async (e) => {
     e.preventDefault();
     const v = validate();
@@ -210,19 +174,6 @@ export default function CompaniesPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // const onDelete = async (id) => {
-  //   if (!confirm("Delete this company?")) return;
-  //   setLoading(true);
-  //   try {
-  //     // Not implementing delete API; just simulate
-  //     toast.info("Delete not implemented on server");
-  //   } catch (e) {
-  //     toast.error(e?.message || "Failed to delete");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const onSelect = (code) => {
     const cc = String(code || "").toLowerCase();
     localStorage.setItem("company_code", cc);
@@ -268,6 +219,7 @@ export default function CompaniesPage() {
                 value={form.code}
                 onChange={onChange}
                 required
+                readOnly={editId}
               />
             </div>
             <div className="flex flex-col">

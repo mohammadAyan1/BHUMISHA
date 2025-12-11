@@ -151,7 +151,7 @@ const VendorRegistration = ({ onAddVendor }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block font-medium mb-1 flex items-center gap-2">
-            <Building2 className="text-blue-600" size={18} /> Vendor Name
+            <Building2 className="text-blue-600" size={18} /> Vendor/Firm Name
           </label>
           <input
             type="text"

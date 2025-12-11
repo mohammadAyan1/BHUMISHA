@@ -232,10 +232,14 @@ export default function SaleOrderInvoice() {
               party?.mobile_no || party?.phone || ""
             ).replace(/[^0-9]/g, "");
             if (!phone) return alert("No customer mobile number found");
-            const total = Number(taxBreakup?.total || 0) + Number(so?.other_amount || 0);
+            const total =
+              Number(taxBreakup?.total || 0) + Number(so?.other_amount || 0);
             const msg = `Hello, here is your sales order ${
               so?.so_no || id
-            }. Grand Total: Rs. ${total.toFixed(2)}. Remark: ${safe(so?.other_note, "—")}`;
+            }. Grand Total: Rs. ${total.toFixed(2)}. Remark: ${safe(
+              so?.other_note,
+              "—"
+            )}`;
             const url = `https://wa.me/${phone}?text=${encodeURIComponent(
               msg
             )}`;
@@ -328,10 +332,12 @@ export default function SaleOrderInvoice() {
                 {safe(so.date || so.bill_date, "—")}
               </div>
               <div>
-                <span className="inline-block w-28">Other Amount</span> : {Number(so.other_amount || 0).toFixed(2)}
+                <span className="inline-block w-28">Other Amount</span> :{" "}
+                {Number(so.other_amount || 0).toFixed(2)}
               </div>
               <div>
-                <span className="inline-block w-28">Remark</span> : {safe(so.other_note, "—")}
+                <span className="inline-block w-28">Remark</span> :{" "}
+                {safe(so.other_note, "—")}
               </div>
               <div>
                 <span className="inline-block w-28">Due Date</span> :{" "}
@@ -459,7 +465,10 @@ export default function SaleOrderInvoice() {
         </div>
         <div className="flex justify-between border-t-2 border-black py-2 font-semibold text-[13px]">
           <span>Grand Total</span>
-          <span>₹ {fmt(Number(taxBreakup.total || 0) + Number(so.other_amount || 0))}</span>
+          <span>
+            ₹{" "}
+            {fmt(Number(taxBreakup.total || 0) + Number(so.other_amount || 0))}
+          </span>
         </div>
 
         {/* GST Breakdown Section */}
@@ -524,10 +533,14 @@ export default function SaleOrderInvoice() {
 
         {/* Amount words + settled */}
         <div className="text-[11px]">
-          <div className="font-semibold">Rs. {fmt(Number(taxBreakup.total || 0))} Only</div>
+          <div className="font-semibold">
+            Rs. {fmt(Number(taxBreakup.total || 0))} Only
+          </div>
           <div className="mt-1">
             Amount in words:{" "}
-            <span className="font-bold">{toWords(Number(taxBreakup.total || 0))} Rupees Only</span>
+            <span className="font-bold">
+              {toWords(Number(taxBreakup.total || 0))} Rupees Only
+            </span>
           </div>
           <div className="mt-1">
             Settled by : Bank : {fmt(so.settled_bank_amount || 0)} | Invoice

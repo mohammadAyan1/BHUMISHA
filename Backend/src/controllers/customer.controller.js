@@ -63,7 +63,6 @@ const CustomerController = {
   // Create
   create: (req, res) => {
     const { name, email } = req.body || {};
-    
 
     if (!name) return res.status(400).json({ message: "Name is required" });
 
@@ -97,7 +96,6 @@ const CustomerController = {
     if (body.name !== undefined && !body.name) {
       return res.status(400).json({ message: "Name is required" });
     }
-
 
     const payload = sanitizeCustomerBody(body);
     Customer.update(id, payload, (err, affected) => {
@@ -363,24 +361,18 @@ const CustomerController = {
         .font("Helvetica")
         .text(custAddr, left + 75, boxTop + 54, { width: boxW - 85 });
 
-      doc
-        .font("Helvetica-Bold")
-        .text("Period:", right - 210, boxTop + 6, {
-          width: 60,
-          align: "right",
-        });
-      doc
-        .font("Helvetica")
-        .text(`${from} → ${to}`, right - 145, boxTop + 6, {
-          width: 145,
-          align: "left",
-        });
-      doc
-        .font("Helvetica-Bold")
-        .text("Generated:", right - 210, boxTop + 22, {
-          width: 60,
-          align: "right",
-        });
+      doc.font("Helvetica-Bold").text("Period:", right - 210, boxTop + 6, {
+        width: 60,
+        align: "right",
+      });
+      doc.font("Helvetica").text(`${from} → ${to}`, right - 145, boxTop + 6, {
+        width: 145,
+        align: "left",
+      });
+      doc.font("Helvetica-Bold").text("Generated:", right - 210, boxTop + 22, {
+        width: 60,
+        align: "right",
+      });
       doc
         .font("Helvetica")
         .text(new Date().toLocaleString(), right - 145, boxTop + 22, {
@@ -550,8 +542,6 @@ const CustomerController = {
         }
       );
     });
-
-    
   },
 };
 

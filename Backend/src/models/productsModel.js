@@ -2,10 +2,12 @@ const db = require("../config/db");
 
 const Product = {
   create: (data, cb) => {
+    console.log(data, "this is the data");
+
     const sql = `
       INSERT INTO products
-      (category_id, product_name, size, purchase_rate, transport_charge, local_transport, packaging_cost, packing_weight, hsn_code, value, discount_30, discount_25, discount_50, total, gst)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (category_id, product_name, size,unit, purchase_rate, transport_charge, local_transport, packaging_cost, packing_weight, hsn_code, value, discount_30, discount_25, discount_50, total, gst)
+      VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
     `;
     db.query(
       sql,
@@ -13,6 +15,7 @@ const Product = {
         data.category_id,
         data.product_name,
         data.size,
+        data.unit || "kg",
         data.purchase_rate,
         data.transport_charge,
         data.local_transport,
@@ -203,6 +206,7 @@ const Product = {
       SELECT p.*, c.name AS category_name
       FROM products p
       JOIN categories c ON p.category_id = c.id
+      WHERE p.status='Active'
       ORDER BY c.name, p.product_name
     `;
     db.query(sql, cb);
@@ -287,10 +291,15 @@ const Product = {
   },
 
   update: (id, data, cb) => {
+    console.log(id, "this is the id ");
+    console.log(data, "this is the Data ");
+    console.log(cb, "this is the CB ");
+
     const fields = [
       "category_id",
       "product_name",
       "size",
+      "unit",
       "purchase_rate",
       "transport_charge",
       "local_transport",
@@ -438,7 +447,7 @@ const Product = {
   },
 
   delete: (id, cb) => {
-    const sql = "DELETE FROM products WHERE id=?";
+    const sql = "UPDATE products SET status='Inactive' WHERE id=?";
     db.query(sql, [id], cb);
   },
 

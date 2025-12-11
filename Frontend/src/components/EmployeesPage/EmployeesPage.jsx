@@ -25,6 +25,7 @@ export default function EmployeesPage() {
     fd.append("position", form.position);
     fd.append("base_salary", form.base_salary);
     fd.append("join_date", form.join_date);
+    fd.append("salary_date", form.salary_date || form?.join_date);
     fd.append("photo", form.photo);
 
     await EmployeePageApi.create(fd);

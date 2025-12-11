@@ -6,7 +6,12 @@ import productReducer from "../features/products/productsSlice";
 import purchasesReducer from "../features/purchase/purchaseSlice";
 import purchaseOrdersReducer from "../features/purchaseOrders/purchaseOrderSlice";
 import customerSlice from "../features/customer/customerSlice";
-
+import farmReducer from "../features/Farm/FarmSlice";
+import clusterReducer from "../features/clusterAdded/ClusterAdded"; // 👈 naya slice import
+import clusterProductsReducer from "../features/clusterProduct/clusterProducts";
+import secondClusterProdutsReducer from "../features/ClusterProducts/ClusterProducts";
+import clusterInvetoryReducer from "../features/ClusterInventory/ClusterInventory";
+import clusterTransactionReducer from "../features/ClusterTransaction/ClusterTransaction";
 const store = configureStore({
   reducer: {
     vendors: vendorReducer,
@@ -16,6 +21,12 @@ const store = configureStore({
     purchases: purchasesReducer,
     purchaseOrders: purchaseOrdersReducer,
     customer: customerSlice,
+    farms: farmReducer,
+    clusters: clusterReducer, // ✅ Add clusters
+    clusterProducts: clusterProductsReducer, // ✅ Add cluster products
+    secondClusterProducts: secondClusterProdutsReducer,
+    clusterInventory: clusterInvetoryReducer,
+    clusterTransaction: clusterTransactionReducer,
   },
 });
 

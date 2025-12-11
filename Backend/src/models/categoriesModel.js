@@ -3,7 +3,7 @@ const db = require("../config/db");
 const Category = {
   // Get all categories
   getAll: (callback) => {
-    const sql = "SELECT * FROM categories";
+    const sql = "SELECT * FROM categories WHERE status='Active'";
     db.query(sql, callback);
   },
 
@@ -21,7 +21,7 @@ const Category = {
 
   // Delete category
   delete: (id, callback) => {
-    const sql = "DELETE FROM categories WHERE id = ?";
+    const sql = "UPDATE categories SET status='Inactive' WHERE id = ?";
     db.query(sql, [id], callback);
   },
 

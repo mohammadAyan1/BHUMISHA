@@ -148,7 +148,6 @@ const getVendorById = (vendor_id, callback) => {
 
     // Check if we got any results
     if (results.length === 0) {
-      
       return callback(null, null);
     }
 
@@ -190,7 +189,6 @@ const getVendorStatement = (req, res) => {
 
 const fetchVendorByName = (req, res) => {
   const { mobile_no } = req.query; // safely extract from body
-  
 
   if (!mobile_no) {
     return res.status(400).json({

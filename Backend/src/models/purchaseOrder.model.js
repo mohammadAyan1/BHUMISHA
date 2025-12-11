@@ -90,8 +90,8 @@ const PurchaseOrder = {
     const po_no = data.po_no ? data.po_no : await getNextPoNo();
     const sql = `
     INSERT INTO purchase_orders
-    (po_no, party_type, vendor_id, farmer_id, date, bill_time, address, mobile_no, gst_no, place_of_supply, terms_condition, total_amount, gst_amount, final_amount, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (po_no, party_type, vendor_id, farmer_id, date, bill_time, address, mobile_no, gst_no, place_of_supply, terms_condition, total_amount, gst_amount, final_amount, status,unit)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
   `;
     // Do NOT coerce null to number; allow nulls
     const values = [
@@ -110,6 +110,7 @@ const PurchaseOrder = {
       toNum(data.gst_amount),
       toNum(data.final_amount),
       data.status || "Issued",
+      data?.unit || "kg",
     ];
     const [result] = await q(sql, values);
     return result;
@@ -136,6 +137,8 @@ const PurchaseOrder = {
         po.gst_amount AS order_gst,
         po.final_amount AS order_final,
         po.status,
+        po.unit,
+
 
         poi.id AS item_id,
         poi.product_id,
@@ -149,6 +152,7 @@ const PurchaseOrder = {
         poi.discount_total,
         poi.gst_percent,
         poi.gst_amount AS item_gst,
+        poi.unit,
         poi.final_amount AS item_final
       FROM purchase_orders po
       LEFT JOIN vendors v ON v.id = po.vendor_id

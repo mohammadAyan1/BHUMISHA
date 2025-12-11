@@ -16,6 +16,7 @@ const Customer = {
         DATE_FORMAT(updated_at, '%Y-%m-%d %h:%i:%s %p') AS updated_at_formatted,
         created_at, updated_at
       FROM customers
+      WHERE status = 'Active'
       ORDER BY id DESC
     `;
     db.query(sql, (err, results) => callback(err, results));
@@ -125,7 +126,7 @@ const Customer = {
   },
 
   delete: (id, callback) => {
-    const sql = "DELETE FROM customers WHERE id=?";
+    const sql = "UPDATE customers SET status='Inactive' WHERE id=?";
     db.query(sql, [id], (err, result) => {
       if (err) return callback(err);
       callback(null, result.affectedRows);

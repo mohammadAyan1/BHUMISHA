@@ -10,18 +10,12 @@ const CustomProductForm = () => {
   const navigate = useNavigate();
   const param = useParams();
 
-  
-
   useEffect(() => {
     if (!param?.id) return;
 
     productAPI.getCustomProductById(param?.id).then((res) => {
-      
-
       const data = res?.data; // because your backend returns [product]
       if (!data) return;
-
-      
 
       setSelectedCustomProduct(data?.ingredients);
 
@@ -101,9 +95,7 @@ const CustomProductForm = () => {
   const categoryDropdownRef = useRef(null);
   const productDropdownRefs = useRef({});
 
-  useEffect(() => {
-    
-  }, [stockUpdates]);
+  useEffect(() => {}, [stockUpdates]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -160,26 +152,6 @@ const CustomProductForm = () => {
       inputRefs.current[0]?.focus();
     }, 300);
   }, []);
-
-  // Auto-calc value and margins
-  // useEffect(() => {
-  //   const total =
-  //     (Number(customPurchaseRate) || 0) +
-  //     (Number(transportRate) || 0) +
-  //     (Number(localTransport) || 0) +
-  //     (Number(packagingCost) || 0);
-  //   setValue(total.toFixed(2));
-  //   setMargin30(((total * 30) / 100).toFixed(2));
-  //   setMargin25(((total * 25) / 100).toFixed(2));
-  //   setCustomSaleRate(((total * 50) / 100 + total).toFixed(2)); // 50% margin
-  // }, [customPurchaseRate, transportRate, localTransport, packagingCost]);
-
-  // useEffect(() => {
-  //   const total = (Number(customSaleRate) || 0) + (Number(packagingCost) || 0);
-  //   setMargin30(((total * 30) / 100).toFixed(2));
-  //   setMargin25(((total * 25) / 100).toFixed(2));
-  //   setCustomSaleRate(((total * 50) / 100 + total).toFixed(2)); // 50% margin
-  // }, [customSaleRate, packagingCost]);
 
   useEffect(() => {
     // Convert inputs to numbers safely
@@ -351,29 +323,22 @@ const CustomProductForm = () => {
   };
 
   const handleQtyChange = (rowId, value) => {
-    
-
     setProductRows((prev) =>
       prev.map((r, i) => {
         if (r.id === rowId) {
           const qty = Number(value);
-          
 
           if (param?.id) {
             const alreadyQty = Number(editQTY?.[i] || 0);
             const availableQty = Number(r.availableQty || 0);
             const allowedQty = availableQty + alreadyQty;
-            
 
             const qtyIncrese = qty - alreadyQty;
-
-            
 
             if (qty > allowedQty) {
               alert("❌ Quantity exceeds available stock!");
               return { ...r, qty: allowedQty }; // clamp to max allowed
             }
-            
 
             setStockUpdates((prevUpdates) => ({
               ...prevUpdates,
@@ -437,11 +402,8 @@ const CustomProductForm = () => {
       stockUpdates,
       selectedProductIds: productRows.map((r) => r).filter(Boolean),
     };
-    
 
     if (param?.id) {
-      
-
       productAPI
         .updateCustomProduct(param?.id, payload)
         .then(() => {
@@ -579,39 +541,6 @@ const CustomProductForm = () => {
           />
         </div>
 
-        {/* Purchase Rate */}
-        {/* <input
-          ref={(el) => (inputRefs.current[2] = el)}
-          type="number"
-          placeholder="Purchase Rate"
-          className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-400"
-          value={customPurchaseRate}
-          onChange={(e) => setCustomPurchaseRate(e.target.value)}
-          onKeyDown={(e) => handleEnterNext(e, 2)}
-        /> */}
-
-        {/* Transport Rate */}
-        {/* <input
-          ref={(el) => (inputRefs.current[3] = el)}
-          type="number"
-          placeholder="Transport Rate"
-          className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-400"
-          value={transportRate}
-          onChange={(e) => setTransportRate(e.target.value)}
-          onKeyDown={(e) => handleEnterNext(e, 3)}
-        /> */}
-
-        {/* Local Transport */}
-        {/* <input
-          ref={(el) => (inputRefs.current[4] = el)}
-          type="number"
-          placeholder="Local Transport"
-          className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-400"
-          value={localTransport}
-          onChange={(e) => setLocalTransport(e.target.value)}
-          onKeyDown={(e) => handleEnterNext(e, 4)}
-        /> */}
-
         {/* Packaging */}
         <div className="flex flex-col">
           <label>Packaging price</label>
@@ -625,15 +554,6 @@ const CustomProductForm = () => {
             onKeyDown={(e) => handleEnterNext(e, 3)}
           />
         </div>
-
-        {/* Value */}
-        {/* <input
-          type="text"
-          placeholder="Value"
-          readOnly
-          className="border p-2 rounded-lg bg-gray-100 text-gray-700"
-          value={value}
-        /> */}
 
         {/* HSN Code */}
         <div className="flex flex-col">
@@ -715,7 +635,7 @@ const CustomProductForm = () => {
           <input
             type="text"
             className="border p-2 rounded-lg focus:ring-2 focus:ring-blue-400 w-full "
-            value={Number(customSaleRate) + Number(packagingCost)}
+            value={(Number(customSaleRate) + Number(packagingCost)) * 1.5}
             placeholder="Sales rates"
           />
         </div>
@@ -834,7 +754,7 @@ const CustomProductForm = () => {
                 <input
                   type="number"
                   className="border p-2 rounded-lg w-28 text-center"
-                  value={row.qty}
+                  value={row.qty === 0 ? "" : row?.qty}
                   min={0}
                   placeholder="Qty"
                   onChange={(e) => handleQtyChange(row.id, e.target.value)}

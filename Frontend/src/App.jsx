@@ -50,12 +50,17 @@ import SalesReports from "./components/SalesReports/SalesReports.jsx";
 import Expenses from "./Pages/Expenses.jsx";
 import SalaryInceptive from "./Pages/SalaryIncentive/SalaryInceptive.jsx";
 import Holiday from "./components/Holiday/Holiday.jsx";
-import Units from "./Pages/Units.jsx";
+import FarmDetailsPage from "./Pages/FarmDetailsPage.jsx";
+import ClusterCreate from "./Pages/ClusterCreate.jsx";
+import ClusterProducts from "./components/ClusterProducts/ClusterProducts";
+import ClusterInventory from "./Pages/ClusterInventory.jsx";
+import ClusterTransaction from "./components/ClusterTransaction/ClusterTransaction.jsx";
 
 // Protected shell: Sidebar + Navbar + keyed Outlet
 function AppShell() {
   const { company } = useCompany();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   const [collapsed, setCollapsed] = useState(false);
 
   const toggleSidebar = () => setIsSidebarOpen((v) => !v);
@@ -102,7 +107,7 @@ function PublicShell() {
 
 export default function App() {
   const { token } = useAuth();
-
+  const [value, setValue] = useState(true);
   if (!token) return <PublicShell />;
 
   return (
@@ -111,27 +116,33 @@ export default function App() {
         <Route element={<AppShell />}>
           {/* Dashboard */}
           <Route path="/" element={<Dashboard />} />
-
           {/* Masters */}
           <Route path="/vendor" element={<VendorManagement />} />
           <Route path="/farmer" element={<FarmerRegistrationPage />} />
+          <Route path="/farm-details" element={<FarmDetailsPage />} />
           <Route path="/category" element={<Categories />} />
           <Route path="/product" element={<Products />} />
+          <Route path="/cluster-create" element={<ClusterCreate />} />
+          <Route path="/cluster-products" element={<ClusterProducts />} />
+          <Route path="/cluster-inventory" element={<ClusterInventory />} />
+          <Route path="/cluster-transaction" element={<ClusterTransaction />} />
+
+          <Route
+            path="/products"
+            element={<Products open={value} hide={setValue} />}
+          />
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/customproduct" element={<CustomProductForm />} />
           <Route path="/customproduct/:id" element={<CustomProductForm />} />
           <Route path="/trashproduct" element={<TrashProductForm />} />
-
           {/* Purchases */}
           <Route path="/purchases" element={<Purchases />} />
           <Route path="/purchases/edit/:poId" element={<PurchaseEdit />} />
           <Route path="/purchases/view/:poId" element={<PurchaseView />} />
           <Route path="/purchases/create" element={<PurchaseForm />} />
           <Route path="/proforma-invoice" element={<AllPurchasesReport />} />
-
           {/* Reports */}
           <Route path="/sales-reports" element={<SalesReports />} />
-
           {/* Sales */}
           <Route path="/sales" element={<SalesPage />} />
           {/* <Route path="/sales-orders" element={<SalesOrders />} /> */}
@@ -143,14 +154,11 @@ export default function App() {
             element={<SaleOrderInvoice />}
           />
           <Route path="/sales/create" element={<SalesForm />} />
-
           {/* Purchase Orders */}
           <Route path="/po-order" element={<PurchaseOrders />} />
           <Route path="/invoice/:id" element={<POinvoice />} />
-
           {/* Companies */}
           <Route path="/company/new" element={<CompaniesPage />} />
-
           {/* salary routes */}
           <Route path="/salaryincentive" element={<SalaryInceptive />}>
             <Route index element={<EmployeesPage />} />
@@ -161,9 +169,7 @@ export default function App() {
             <Route path="attendance" element={<AttendenceUpdate />} />
             <Route path="holiday" element={<Holiday />} />
           </Route>
-
           <Route path="/expenses" element={<Expenses />} />
-          <Route path="/unit" element={<Units />} />
         </Route>
 
         {/* Unknown to dashboard (logged-in users) */}

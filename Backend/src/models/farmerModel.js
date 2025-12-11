@@ -66,6 +66,8 @@ const getFarmers = (callback) => {
            b.pan_number, b.account_holder_name, b.bank_name, b.account_number, b.ifsc_code, b.branch_name
     FROM farmers f
     LEFT JOIN farmer_bank_details b ON f.id = b.farmer_id
+    WHERE f.status = 'Active'
+    ORDER BY f.id DESC
   `;
   db.query(query, callback);
 };
@@ -103,7 +105,11 @@ const updateFarmer = (farmer_id, farmerData, bankData, callback) => {
 
 // Delete
 const deleteFarmer = (farmer_id, callback) => {
-  db.query("DELETE FROM farmers WHERE id=?", [farmer_id], callback);
+  db.query(
+    "UPDATE farmers SET status='Inactive' WHERE id=?",
+    [farmer_id],
+    callback
+  );
 };
 
 // Status

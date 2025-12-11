@@ -499,8 +499,10 @@ export default function Dashboard() {
           <div>
             <p className="text-sm opacity-80">Total GST Profit</p>
             <h3 className="text-2xl font-bold">
-              {Number(gstAmount?.totalGstFromTable) -
-                Number(gstAmount?.totalGstFromProducts)}
+              {(
+                Number(gstAmount?.totalGstFromTable) -
+                Number(gstAmount?.totalGstFromProducts)
+              ).toFixed(2)}
             </h3>
           </div>
         </div>

@@ -1,13 +1,24 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchFarmers, deleteFarmer, updateFarmerStatus } from "../../features/farmers/farmerSlice";
+import {
+  fetchFarmers,
+  deleteFarmer,
+  updateFarmerStatus,
+} from "../../features/farmers/farmerSlice";
 import DataTable from "../DataTable/DataTable";
 import { IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+
 import {
-  Building2, FileText, MapPin, Phone, CreditCard, Landmark, FileSignature
+  Building2,
+  FileText,
+  MapPin,
+  Phone,
+  CreditCard,
+  Landmark,
+  FileSignature,
 } from "lucide-react";
 import farmersAPI from "../../axios/farmerAPI"; // Assuming this exists
 import { toast } from "react-toastify";
@@ -34,7 +45,7 @@ export default function FarmerList({ onEdit }) {
 
   useEffect(() => {
     dispatch(fetchFarmers());
-  }, [dispatch]); 
+  }, [dispatch]);
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this farmer?")) {
@@ -43,35 +54,41 @@ export default function FarmerList({ onEdit }) {
   };
 
   const handleStatusToggle = async (id, currentStatus) => {
-    const normalizedCurrentStatus = (currentStatus || "").toString().toLowerCase();
-    const newStatus = normalizedCurrentStatus === 'active' ? 'inactive' : 'active';
+    const normalizedCurrentStatus = (currentStatus || "")
+      .toString()
+      .toLowerCase();
+    const newStatus =
+      normalizedCurrentStatus === "active" ? "inactive" : "active";
     await dispatch(updateFarmerStatus({ id, status: newStatus }));
     // Refresh farmers list to get updated data from backend
     dispatch(fetchFarmers());
   };
 
   // Open statement modal
-  const openStatement = useCallback(async (farmer) => {
-    setActiveFarmer(farmer);
-    setShowStatement(true);
-    setStatementLoading(true);
-    try {
-      const res = await farmersAPI.getStatement(farmer.id, {
-        from: stFrom,
-        to: stTo,
-        page: stPage,
-        limit: stLimit,
-        sort: stSort
-      });
-      setStatementRows(res.data.rows || []);
-      setStatementTotals(res.data.totals || null);
-    } catch (err) {
-      toast.error("Failed to load statement");
-      console.error(err);
-    } finally {
-      setStatementLoading(false);
-    }
-  }, [stFrom, stTo, stPage, stLimit, stSort]);
+  const openStatement = useCallback(
+    async (farmer) => {
+      setActiveFarmer(farmer);
+      setShowStatement(true);
+      setStatementLoading(true);
+      try {
+        const res = await farmersAPI.getStatement(farmer.id, {
+          from: stFrom,
+          to: stTo,
+          page: stPage,
+          limit: stLimit,
+          sort: stSort,
+        });
+        setStatementRows(res.data.rows || []);
+        setStatementTotals(res.data.totals || null);
+      } catch (err) {
+        toast.error("Failed to load statement");
+        console.error(err);
+      } finally {
+        setStatementLoading(false);
+      }
+    },
+    [stFrom, stTo, stPage, stLimit, stSort]
+  );
 
   // Close statement modal
   const closeStatement = useCallback(() => {
@@ -82,16 +99,18 @@ export default function FarmerList({ onEdit }) {
   }, []);
 
   const columns = [
-    { 
-      field: "sl_no", 
-      headerName: "S.No.", 
+    {
+      field: "sl_no",
+      headerName: "S.No.",
       width: 80,
-      backgroundColore:"gray" ,
+      backgroundColore: "gray",
       sortable: false,
       renderCell: (params) => {
-        const rowIndex = farmers.findIndex(farmer => farmer.id === params.row.id);
+        const rowIndex = farmers.findIndex(
+          (farmer) => farmer.id === params.row.id
+        );
         return rowIndex + 1;
-      }
+      },
     },
     {
       field: "name",
@@ -118,65 +137,56 @@ export default function FarmerList({ onEdit }) {
     // { field: "bank", headerName: "Bank", flex: 1 },
 
     {
-  field: "balance",
-  headerName: "Balance",
-  width: 140,
-// Balance column renderCell
-renderCell: (params) => {
-  const bal = Number(params.row.balance ?? 0);
-  const min = Number(params.row.min_balance ?? 5000);
-  const high = bal > min; // change here
-  return (
-    <span className={high ? "text-red-600 font-semibold" : "text-gray-800"}>
-      {bal.toFixed(2)}
-    </span>
-  );
-}
+      field: "balance",
+      headerName: "Balance",
+      width: 140,
+      // Balance column renderCell
+      renderCell: (params) => {
+        const bal = Number(params.row.balance ?? 0);
+        const min = Number(params.row.min_balance ?? 5000);
+        const high = bal > min; // change here
+        return (
+          <span
+            className={high ? "text-red-600 font-semibold" : "text-gray-800"}
+          >
+            {bal.toFixed(2)}
+          </span>
+        );
+      },
+    },
 
-},
-
-// min_balance column removed from list; kept in input/form only
-    { 
-      field: "status", 
-      headerName: "Status", 
+    // min_balance column removed from list; kept in input/form only
+    {
+      field: "status",
+      headerName: "Status",
       width: 120,
       sortable: false,
       renderCell: (params) => (
         <div
           onClick={() => handleStatusToggle(params.row.id, params.value)}
           className={`relative inline-flex items-center h-6 rounded-full w-11 cursor-pointer transition-all duration-300 shadow-md ${
-            (params.value || "").toString().toLowerCase() === 'active' 
-              ? 'bg-green-500' 
-              : 'bg-gray-300'
+            (params.value || "").toString().toLowerCase() === "active"
+              ? "bg-green-500"
+              : "bg-gray-300"
           }`}
-          title={`Click to ${(params.value || "").toString().toLowerCase() === 'active' ? 'deactivate' : 'activate'}`}
+          title={`Click to ${
+            (params.value || "").toString().toLowerCase() === "active"
+              ? "deactivate"
+              : "activate"
+          }`}
         >
           {/* White circle slider */}
           <span
             className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-300 shadow-lg border border-gray-200 ${
-              (params.value || "").toString().toLowerCase() === 'active' 
-                ? 'translate-x-6' 
-                : 'translate-x-1'
+              (params.value || "").toString().toLowerCase() === "active"
+                ? "translate-x-6"
+                : "translate-x-1"
             }`}
           />
         </div>
-      )
+      ),
     },
-    // {
-    //   field: "bank",
-    //   headerName: "Bank",
-    //   sortable: false,
-    //   width: 80,
-    //   renderCell: (params) => (
-    //     <IconButton 
-    //       color="info" 
-    //       onClick={() => setBankDetailsFarmer(params.row)}
-    //       title="View Bank Details"
-    //     >
-    //       <AccountBalanceIcon />
-    //     </IconButton>
-    //   ),
-    // },
+
     {
       field: "actions",
       headerName: "Actions",
@@ -209,12 +219,23 @@ renderCell: (params) => {
               <h2 className="text-2xl font-bold text-gray-800">
                 Statement - {activeFarmer.name}
               </h2>
+
               <button
                 onClick={closeStatement}
                 className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -222,7 +243,9 @@ renderCell: (params) => {
             {/* Filters */}
             <div className="flex gap-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">From Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  From Date
+                </label>
                 <input
                   type="date"
                   value={stFrom}
@@ -231,7 +254,9 @@ renderCell: (params) => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">To Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  To Date
+                </label>
                 <input
                   type="date"
                   value={stTo}
@@ -240,7 +265,9 @@ renderCell: (params) => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Limit</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Limit
+                </label>
                 <select
                   value={stLimit}
                   onChange={(e) => setStLimit(Number(e.target.value))}
@@ -267,19 +294,30 @@ renderCell: (params) => {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <p className="text-sm text-blue-600">Opening Balance</p>
-                  <p className="text-xl font-bold text-blue-900">₹{Number(statementTotals.opening_balance || 0).toFixed(2)}</p>
+                  <p className="text-xl font-bold text-blue-900">
+                    ₹{Number(statementTotals.opening_balance || 0).toFixed(2)}
+                  </p>
                 </div>
                 <div className="bg-green-50 p-4 rounded-lg">
                   <p className="text-sm text-green-600">Total Invoiced</p>
-                  <p className="text-xl font-bold text-green-900">₹{Number(statementTotals.total_invoiced || 0).toFixed(2)}</p>
+                  <p className="text-xl font-bold text-green-900">
+                    ₹{Number(statementTotals.total_invoiced || 0).toFixed(2)}
+                  </p>
                 </div>
                 <div className="bg-red-50 p-4 rounded-lg">
                   <p className="text-sm text-red-600">Total Paid</p>
-                  <p className="text-xl font-bold text-red-900">₹{Number(statementTotals.total_paid || 0).toFixed(2)}</p>
+                  <p className="text-xl font-bold text-red-900">
+                    ₹{Number(statementTotals.total_paid || 0).toFixed(2)}
+                  </p>
                 </div>
                 <div className="bg-purple-50 p-4 rounded-lg">
                   <p className="text-sm text-purple-600">Outstanding Balance</p>
-                  <p className="text-xl font-bold text-purple-900">₹{Number(statementTotals.outstanding_balance || 0).toFixed(2)}</p>
+                  <p className="text-xl font-bold text-purple-900">
+                    ₹
+                    {Number(statementTotals.outstanding_balance || 0).toFixed(
+                      2
+                    )}
+                  </p>
                 </div>
               </div>
             )}
@@ -294,7 +332,9 @@ renderCell: (params) => {
                     <tr>
                       <th className="px-4 py-2 border-b text-left">Date</th>
                       <th className="px-4 py-2 border-b text-left">Type</th>
-                      <th className="px-4 py-2 border-b text-left">Description</th>
+                      <th className="px-4 py-2 border-b text-left">
+                        Description
+                      </th>
                       <th className="px-4 py-2 border-b text-right">Debit</th>
                       <th className="px-4 py-2 border-b text-right">Credit</th>
                       <th className="px-4 py-2 border-b text-right">Balance</th>
@@ -303,12 +343,24 @@ renderCell: (params) => {
                   <tbody>
                     {statementRows.map((row, index) => (
                       <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-4 py-2 border-b">{new Date(row.tx_datetime).toLocaleDateString()}</td>
+                        <td className="px-4 py-2 border-b">
+                          {new Date(row.tx_datetime).toLocaleDateString()}
+                        </td>
                         <td className="px-4 py-2 border-b">{row.tx_type}</td>
                         <td className="px-4 py-2 border-b">{row.note}</td>
-                        <td className="px-4 py-2 border-b text-right">{row.tx_type === 'Sale' ? `₹${Number(row.amount || 0).toFixed(2)}` : ""}</td>
-                        <td className="px-4 py-2 border-b text-right">{row.tx_type === 'Payment' ? `₹${Number(row.amount || 0).toFixed(2)}` : ""}</td>
-                        <td className="px-4 py-2 border-b text-right">₹{Number(row.running_balance || 0).toFixed(2)}</td>
+                        <td className="px-4 py-2 border-b text-right">
+                          {row.tx_type === "Sale"
+                            ? `₹${Number(row.amount || 0).toFixed(2)}`
+                            : ""}
+                        </td>
+                        <td className="px-4 py-2 border-b text-right">
+                          {row.tx_type === "Payment"
+                            ? `₹${Number(row.amount || 0).toFixed(2)}`
+                            : ""}
+                        </td>
+                        <td className="px-4 py-2 border-b text-right">
+                          ₹{Number(row.running_balance || 0).toFixed(2)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -337,81 +389,116 @@ renderCell: (params) => {
                 <AccountBalanceIcon className="text-blue-600" />
                 Bank Details - {bankDetailsFarmer.name}
               </h2>
-              <button 
-                onClick={() => setBankDetailsFarmer(null)} 
+              <button
+                onClick={() => setBankDetailsFarmer(null)}
                 className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
-            
+
             {(() => {
               // Bank details are directly on the farmer object from backend JOIN query
               const bank = {
                 pan_number: bankDetailsFarmer.pan_number || "",
-                account_holder_name: bankDetailsFarmer.account_holder_name || "",
+                account_holder_name:
+                  bankDetailsFarmer.account_holder_name || "",
                 bank_name: bankDetailsFarmer.bank_name || "",
                 account_number: bankDetailsFarmer.account_number || "",
                 ifsc_code: bankDetailsFarmer.ifsc_code || "",
-                branch_name: bankDetailsFarmer.branch_name || ""
+                branch_name: bankDetailsFarmer.branch_name || "",
               };
-              
+
               return (
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
                       <div className="flex items-center gap-2 mb-2">
                         <FileSignature size={18} className="text-purple-600" />
-                        <p className="text-sm font-semibold text-purple-800">PAN Number</p>
+                        <p className="text-sm font-semibold text-purple-800">
+                          PAN Number
+                        </p>
                       </div>
-                      <p className="text-lg font-bold text-purple-900">{bank.pan_number || "Not Available"}</p>
+                      <p className="text-lg font-bold text-purple-900">
+                        {bank.pan_number || "Not Available"}
+                      </p>
                     </div>
-                    
+
                     <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
                       <div className="flex items-center gap-2 mb-2">
                         <Building2 size={18} className="text-green-600" />
-                        <p className="text-sm font-semibold text-green-800">Account Holder</p>
+                        <p className="text-sm font-semibold text-green-800">
+                          Account Holder
+                        </p>
                       </div>
-                      <p className="text-lg font-bold text-green-900">{bank.account_holder_name || "Not Available"}</p>
+                      <p className="text-lg font-bold text-green-900">
+                        {bank.account_holder_name || "Not Available"}
+                      </p>
                     </div>
-                    
+
                     <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
                       <div className="flex items-center gap-2 mb-2">
                         <Landmark size={18} className="text-blue-600" />
-                        <p className="text-sm font-semibold text-blue-800">Bank Name</p>
+                        <p className="text-sm font-semibold text-blue-800">
+                          Bank Name
+                        </p>
                       </div>
-                      <p className="text-lg font-bold text-blue-900">{bank.bank_name || "Not Available"}</p>
+                      <p className="text-lg font-bold text-blue-900">
+                        {bank.bank_name || "Not Available"}
+                      </p>
                     </div>
-                    
+
                     <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
                       <div className="flex items-center gap-2 mb-2">
                         <CreditCard size={18} className="text-orange-600" />
-                        <p className="text-sm font-semibold text-orange-800">Account Number</p>
+                        <p className="text-sm font-semibold text-orange-800">
+                          Account Number
+                        </p>
                       </div>
-                      <p className="text-lg font-bold text-orange-900">{bank.account_number || "Not Available"}</p>
+                      <p className="text-lg font-bold text-orange-900">
+                        {bank.account_number || "Not Available"}
+                      </p>
                     </div>
-                    
+
                     <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-4 border border-indigo-200">
                       <div className="flex items-center gap-2 mb-2">
                         <FileText size={18} className="text-indigo-600" />
-                        <p className="text-sm font-semibold text-indigo-800">IFSC Code</p>
+                        <p className="text-sm font-semibold text-indigo-800">
+                          IFSC Code
+                        </p>
                       </div>
-                      <p className="text-lg font-bold text-indigo-900">{bank.ifsc_code || "Not Available"}</p>
+                      <p className="text-lg font-bold text-indigo-900">
+                        {bank.ifsc_code || "Not Available"}
+                      </p>
                     </div>
-                    
+
                     <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200">
                       <div className="flex items-center gap-2 mb-2">
                         <MapPin size={18} className="text-teal-600" />
-                        <p className="text-sm font-semibold text-teal-800">Branch Name</p>
+                        <p className="text-sm font-semibold text-teal-800">
+                          Branch Name
+                        </p>
                       </div>
-                      <p className="text-lg font-bold text-teal-900">{bank.branch_name || "Not Available"}</p>
+                      <p className="text-lg font-bold text-teal-900">
+                        {bank.branch_name || "Not Available"}
+                      </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-end pt-4 border-t border-gray-200">
-                    <button 
+                    <button
                       onClick={() => setBankDetailsFarmer(null)}
                       className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                     >

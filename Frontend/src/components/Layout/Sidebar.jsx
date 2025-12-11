@@ -9,12 +9,8 @@ export default function Sidebar({
   toggleCollapse,
 }) {
   const location = useLocation();
-  const [openMenu, setOpenMenu] = useState(null);
-  const [companyData, setCompanyData] = useState(null);
 
-  const toggleDropdown = (menu) => {
-    setOpenMenu(openMenu === menu ? null : menu);
-  };
+  const [companyData, setCompanyData] = useState(null);
 
   const linkClass = (path) =>
     `flex items-center gap-3 px-4 py-2 rounded-md cursor-pointer transition-all duration-200 ${
@@ -88,7 +84,9 @@ export default function Sidebar({
   const handleNavClick = () => {
     try {
       if (typeof toggleSidebar === "function") toggleSidebar();
-    } catch {}
+    } catch (err) {
+      console.error("Error in handleNavClick:", err);
+    }
   };
 
   return (
@@ -171,57 +169,6 @@ export default function Sidebar({
           />
           {!collapsed && "Dashboard"}
         </Link>
-
-        {/* Masters Dropdown */}
-        <div>
-          <button
-            onClick={() => toggleDropdown("masters")}
-            className="flex items-center justify-between w-full px-4 py-2 rounded-md hover:bg-[var(--secondary-bg)] text-[var(--text-color)]"
-            aria-expanded={openMenu === "masters"}
-            aria-controls="menu-masters"
-          >
-            <span className="flex items-center gap-3">
-              <Sticker
-                label="Masters"
-                symbol="📁"
-                decorative={collapsed ? false : true}
-              />
-              {!collapsed && "Masters"}
-            </span>
-            {!collapsed && <Chevron open={openMenu === "masters"} />}
-          </button>
-
-          {openMenu === "masters" && !collapsed && (
-            <div id="menu-masters" className="ml-6 mt-1 space-y-1">
-              <Link
-                to="/proforma"
-                className={linkClass("/proforma")}
-                onClick={handleNavClick}
-              >
-                <Sticker
-                  label="Proforma Invoice"
-                  symbol="🧾"
-                  decorative={collapsed ? false : true}
-                />
-                {!collapsed && "Proforma Invoice"}
-              </Link>
-
-              <Link
-                to="/gst"
-                className={linkClass("/gst")}
-                onClick={handleNavClick}
-              >
-                <Sticker
-                  label="GST Details"
-                  symbol="📊"
-                  decorative={collapsed ? false : true}
-                />
-                {!collapsed && "GST Details"}
-              </Link>
-            </div>
-          )}
-        </div>
-
         {/* Extra Links */}
         <Link
           to="/vendor"
@@ -237,6 +184,19 @@ export default function Sidebar({
         </Link>
 
         <Link
+          to="/cluster-products"
+          className={linkClass("/cluster-products")}
+          onClick={handleNavClick}
+        >
+          <Sticker
+            label="Cluster Products"
+            symbol="🧑‍💼"
+            decorative={collapsed ? false : true}
+          />
+          {!collapsed && "Cluster Products"}
+        </Link>
+
+        <Link
           to="/farmer"
           className={linkClass("/farmer")}
           onClick={handleNavClick}
@@ -247,6 +207,32 @@ export default function Sidebar({
             decorative={collapsed ? false : true}
           />
           {!collapsed && "Farmer"}
+        </Link>
+
+        <Link
+          to="/cluster-create"
+          className={linkClass("/cluster-create")}
+          onClick={handleNavClick}
+        >
+          <Sticker
+            label="Cluster Create"
+            symbol="👤"
+            decorative={collapsed ? false : true}
+          />
+          {!collapsed && "Cluster Create"}
+        </Link>
+
+        <Link
+          to="/farm-details"
+          className={linkClass("/farm-details")}
+          onClick={handleNavClick}
+        >
+          <Sticker
+            label="Farm"
+            symbol="🌆"
+            decorative={collapsed ? false : true}
+          />
+          {!collapsed && "Farm"}
         </Link>
 
         <Link
@@ -273,19 +259,6 @@ export default function Sidebar({
             decorative={collapsed ? false : true}
           />
           {!collapsed && "Category"}
-        </Link>
-
-        <Link
-          to="/unit"
-          className={linkClass("/unit")}
-          onClick={handleNavClick}
-        >
-          <Sticker
-            label="Unit"
-            symbol="🎰"
-            decorative={collapsed ? false : true}
-          />
-          {!collapsed && "Unit"}
         </Link>
 
         <Link
@@ -416,6 +389,32 @@ export default function Sidebar({
             decorative={collapsed ? false : true}
           />
           {!collapsed && "expenses"}
+        </Link>
+
+        <Link
+          to="/cluster-inventory"
+          className={linkClass("/cluster-inventory")}
+          onClick={handleNavClick}
+        >
+          <Sticker
+            label="Cluster Inventory"
+            symbol="🏷️"
+            decorative={collapsed ? false : true}
+          />
+          {!collapsed && "Cluster Inventory"}
+        </Link>
+
+        <Link
+          to="/cluster-transaction"
+          className={linkClass("/cluster-transaction")}
+          onClick={handleNavClick}
+        >
+          <Sticker
+            label="Cluster transaction"
+            symbol="🏷️"
+            decorative={collapsed ? false : true}
+          />
+          {!collapsed && "Cluster transaction"}
         </Link>
       </nav>
     </aside>

@@ -152,6 +152,7 @@ const updateProduct = (req, res) => {
     "category_id",
     "product_name",
     "size",
+    "unit",
     "purchase_rate",
     "transport_charge",
     "local_transport",

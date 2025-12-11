@@ -58,8 +58,6 @@ const salesOrderController = {
       if (!Array.isArray(items) || items.length === 0)
         return res.status(400).json({ error: "items are required" });
 
-      
-
       // header totals from items
       let totalAmount = 0,
         totalGST = 0,
@@ -94,8 +92,6 @@ const salesOrderController = {
         other_note: other_note || "",
         status: status || "Issued",
       };
-
-      
 
       let headerResult;
       try {

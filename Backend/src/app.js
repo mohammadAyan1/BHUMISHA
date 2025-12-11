@@ -54,12 +54,19 @@ const attendanceRoutes = require("./routes/attendance");
 const incentivesRoutes = require("./routes/incentives");
 const salaryRoutes = require("./routes/salary");
 const holidayRoutes = require("./routes/holiday.routes");
-
+const farmRoutes = require("./routes/farm.routes");
+const clusterRoutes = require("./routes/cluster.routes");
+const clusterProductRoutes = require("./routes/clusterProduct.routes");
+const clusterProductAssignRoutes = require("./routes/clusterProductAssignRoutes");
+const clusterSecondRoutes = require("./routes/clusterSecondProduct.routes");
+const clusterInventoryRoutes = require("./routes/clusterInventoryRoutes");
+const clusterTransactionRoutes = require("./routes/clusterTransactionRoutes");
 // ---------- Core Config ----------
 const NODE_ENV = process.env.NODE_ENV || "development";
 const FRONTEND_URL = process.env.FRONTEND_URL || process.env.FRONTEND2_URL;
 const JSON_LIMIT = process.env.JSON_LIMIT || "2mb";
 const FRONTEND3_URL = process.env.FRONTEND3_URL;
+// const FRONTEND4_URL = process.env.FRONTEND4_URL;
 
 const allowedOrigins = [FRONTEND_URL, FRONTEND3_URL].filter(Boolean);
 
@@ -148,11 +155,25 @@ app.post("/api/invoice-image", requireAuth, async (req, res) => {
 app.use("/api/auth", authRoutes);
 
 // Protected routes (require valid Bearer token)
+app.use("/api/farm", requireAuth, farmRoutes);
+app.use("/api/clusters", requireAuth, clusterRoutes);
+app.use("/api/clusters-products", requireAuth, clusterProductRoutes);
+app.use("/api/clusters-second-products", requireAuth, clusterSecondRoutes);
+
+app.use(
+  "/api/clusters-assign-products",
+  requireAuth,
+  clusterProductAssignRoutes
+);
+
 app.use("/api/vendors", requireAuth, vendorRoutes);
 app.use("/api/vendor-bank-details", requireAuth, vendorBackend);
 app.use("/api/farmers", requireAuth, farmerRoutes);
 app.use("/api/categories", requireAuth, categoryRoutes);
 app.use("/api/products", requireAuth, productRoutes);
+app.use("/api/clusters-inventory", requireAuth, clusterInventoryRoutes);
+app.use("/api/cluster-transaction", requireAuth, clusterTransactionRoutes);
+
 // app.use("/api/", requireAuth, productRoutes);
 
 app.use("/api/purchase", requireAuth, purchaseRoutes);

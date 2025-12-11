@@ -1,7 +1,5 @@
 const db = require("../config/db");
 
-
-
 const createVendor = (vendorData, bankData, callback) => {
   // Use DB defaults if undefined by passing DEFAULT keyword
   const vendorQuery = `
@@ -18,8 +16,8 @@ const createVendor = (vendorData, bankData, callback) => {
       vendorData.address,
       vendorData.contact_number,
       vendorData.status || "active",
-      vendorData.balance,        // if undefined -> DEFAULT via COALESCE
-      vendorData.min_balance     // if undefined -> DEFAULT via COALESCE
+      vendorData.balance, // if undefined -> DEFAULT via COALESCE
+      vendorData.min_balance, // if undefined -> DEFAULT via COALESCE
     ],
     (err, result) => {
       if (err) return callback(err);
@@ -59,8 +57,6 @@ const createVendor = (vendorData, bankData, callback) => {
   );
 };
 
-
-
 // ================= Get Vendors =================
 const getVendors = (callback) => {
   const query = `
@@ -71,6 +67,7 @@ const getVendors = (callback) => {
       b.pan_number, b.account_holder_name, b.bank_name, b.account_number, b.ifsc_code, b.branch_name
     FROM vendors v
     LEFT JOIN vendor_bank_details b ON v.id = b.vendor_id
+    WHERE v.status = 'active'
   `;
   db.query(query, callback);
 };
@@ -131,10 +128,14 @@ const updateVendor = (vendor_id, vendorData, bankData, callback) => {
   );
 };
 
-
 // ================= Delete Vendor =================
+// const deleteVendor = (vendor_id, callback) => {
+//   const query = "DELETE FROM vendors WHERE id=?";
+//   db.query(query, [vendor_id], callback);
+// };
+
 const deleteVendor = (vendor_id, callback) => {
-  const query = "DELETE FROM vendors WHERE id=?";
+  const query = "UPDATE vendors SET status = 'inactive' WHERE id = ?";
   db.query(query, [vendor_id], callback);
 };
 
@@ -143,7 +144,6 @@ const updateVendorStatus = (vendor_id, status, callback) => {
   const query = "UPDATE vendors SET status=? WHERE id=?";
   db.query(query, [status, vendor_id], callback);
 };
-
 
 const getVendorById = (vendor_id, callback) => {
   const query = `
@@ -160,7 +160,10 @@ const getVendorById = (vendor_id, callback) => {
 };
 
 // Statement
-const getVendorStatement = ({ vendorId, from, to, limit, offset, sort }, callback) => {
+const getVendorStatement = (
+  { vendorId, from, to, limit, offset, sort },
+  callback
+) => {
   // Opening balance is 0 since no payment tracking for vendors
   const openingBalance = 0;
 
@@ -177,7 +180,7 @@ const getVendorStatement = ({ vendorId, from, to, limit, offset, sort }, callbac
       CONCAT('Purchase Bill #', p.bill_no) AS note
     FROM purchases p
     WHERE p.vendor_id = ? AND p.status = 'Active' AND p.bill_date BETWEEN ? AND ?
-    ORDER BY p.bill_date ${sort === 'desc' ? 'DESC' : 'ASC'}
+    ORDER BY p.bill_date ${sort === "desc" ? "DESC" : "ASC"}
     LIMIT ? OFFSET ?
   `;
 
@@ -198,7 +201,10 @@ const getVendorStatement = ({ vendorId, from, to, limit, offset, sort }, callbac
 
       db.query(totalsSql, [vendorId, to, vendorId, to], (err2, totals) => {
         if (err2) return callback(err2);
-        callback(null, { rows, totals: { ...totals[0], opening_balance: openingBalance } || {} });
+        callback(null, {
+          rows,
+          totals: { ...totals[0], opening_balance: openingBalance } || {},
+        });
       });
     });
   });
@@ -211,5 +217,5 @@ module.exports = {
   deleteVendor,
   updateVendorStatus,
   getVendorById,
-  getVendorStatement
+  getVendorStatement,
 };

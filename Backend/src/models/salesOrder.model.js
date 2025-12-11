@@ -21,8 +21,6 @@ const q = (sql, params = []) =>
 
 const SalesOrder = {
   create: async (data) => {
-    
-
     const so_no = data.so_no || (await getNextSoNo());
     const sql = `
       INSERT INTO \`sales_orders\`
@@ -90,7 +88,9 @@ const SalesOrder = {
         soi.discount_total,
         soi.gst_percent,
         soi.gst_amount   AS item_gst,
-        soi.final_amount AS item_final
+        soi.final_amount AS item_final,
+        soi.status       AS item_status,       -- FIX #2
+        p.status         AS product_status     -- FIX #3
       FROM sales_orders so
       LEFT JOIN customers c ON c.id = so.party_id AND so.party_type = 'Customer'
       LEFT JOIN vendors v ON v.id = so.party_id AND so.party_type = 'Vendor'

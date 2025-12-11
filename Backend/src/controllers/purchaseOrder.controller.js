@@ -47,9 +47,12 @@ const purchaseOrderController = {
         gst_no,
         place_of_supply,
         terms_condition,
+        unit,
         items = [],
         status,
       } = req.body;
+
+      console.log(unit, "thisis the unit");
 
       // Validate
       if (!Array.isArray(items) || items.length === 0) {
@@ -104,6 +107,7 @@ const purchaseOrderController = {
         mobile_no,
         gst_no,
         place_of_supply,
+        unit,
         terms_condition,
         total_amount: Number(totalAmount.toFixed(2)),
         gst_amount: Number(totalGST.toFixed(2)),
@@ -126,6 +130,7 @@ const purchaseOrderController = {
           discount_per_qty: Number(raw.discount_per_qty || 0),
           gst_percent: Number(raw.gst_percent || 0),
           status: raw.status || "Active",
+          unit: raw?.unit,
         };
         const itemResult = await PurchaseOrderItem.create(itemData);
         createdItems.push({ id: itemResult.insertId, ...itemData });
@@ -208,6 +213,7 @@ const purchaseOrderController = {
           gst_percent: Number(row.gst_percent),
           gst_amount: Number(row.item_gst),
           final_amount: Number(row.item_final),
+          unit: row.unit,
         });
         poMap[poId].summary.total_taxable +=
           Number(row.amount) - Number(row.discount_total);
@@ -467,7 +473,7 @@ const purchaseOrderController = {
       const [poRows] = await conn.query(
         `SELECT
             po.id, po.party_type, po.vendor_id, po.farmer_id,
-            po.address, po.mobile_no, po.gst_no, po.terms_condition, po.status
+            po.address, po.mobile_no, po.gst_no, po.terms_condition, po.status,po.unit
           FROM purchase_orders po
           WHERE po.id = ?`,
         [id]
@@ -519,7 +525,8 @@ const purchaseOrderController = {
             i.qty,
             i.rate,
             i.discount_rate,
-            i.gst_percent
+            i.gst_percent,
+            i.unit
           FROM purchase_order_items i
           LEFT JOIN products p ON p.id = i.product_id
           WHERE i.purchase_order_id = ?
@@ -540,6 +547,7 @@ const purchaseOrderController = {
           rate: toNum(r.rate, 0),
           discount_rate: toNum(r.discount_rate, 0),
           gst_percent: toNum(r.gst_percent, 0),
+          unit: r.unit,
         };
       });
 

@@ -3,17 +3,27 @@ const pool = require("../config/db");
 function createEmployee(req, res) {
   const { name, email, phone, position, base_salary, join_date, salary_date } =
     req.body;
+
   const photo = req.file ? req.file.filename : null;
 
-  const mysqlJoiningDate = new Date(join_date)
-    .toISOString()
-    .slice(0, 19)
-    .replace("T", " ");
+  // Validate join_date
+  const jd = new Date(join_date);
+  if (isNaN(jd.getTime())) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid join_date" });
+  }
 
-  const mysqlSalaryDate = new Date(salary_date)
-    .toISOString()
-    .slice(0, 19)
-    .replace("T", " ");
+  // Validate salary_date
+  const sd = new Date(salary_date);
+  if (isNaN(sd.getTime())) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid salary_date" });
+  }
+
+  const mysqlJoiningDate = jd.toISOString().slice(0, 19).replace("T", " ");
+  const mysqlSalaryDate = sd.toISOString().slice(0, 19).replace("T", " ");
 
   const sql = `
     INSERT INTO employees 

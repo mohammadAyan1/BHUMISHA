@@ -24,14 +24,16 @@ const PurchaseOrderItem = {
   create: async (data) => {
     const poId = toNum(data.purchase_order_id, NaN);
     const productId = toNum(data.product_id, NaN);
-    if (!Number.isInteger(poId)) throw new Error("purchase_order_id must be a valid integer");
-    if (!Number.isInteger(productId)) throw new Error("product_id must be a valid integer");
+    if (!Number.isInteger(poId))
+      throw new Error("purchase_order_id must be a valid integer");
+    if (!Number.isInteger(productId))
+      throw new Error("product_id must be a valid integer");
 
     // REMOVE generated columns: amount, discount_rate, discount_total, gst_amount, final_amount
     const sql = `
     INSERT INTO purchase_order_items
-    (purchase_order_id, product_id, hsn_code, qty, rate, discount_per_qty, gst_percent, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    (purchase_order_id, product_id, hsn_code, qty, rate, discount_per_qty, gst_percent, status,unit)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)
   `;
     const values = [
       poId,
@@ -42,6 +44,7 @@ const PurchaseOrderItem = {
       toNum(data.discount_per_qty),
       toNum(data.gst_percent),
       data.status || "Active",
+      data?.unit || "kg",
     ];
     const [result] = await q(sql, values);
     return result;
@@ -50,7 +53,8 @@ const PurchaseOrderItem = {
   // Bulk create items for a PO
   bulkCreate: async (purchase_order_id, items = []) => {
     const poId = toNum(purchase_order_id, NaN);
-    if (!Number.isInteger(poId)) throw new Error("purchase_order_id must be a valid integer");
+    if (!Number.isInteger(poId))
+      throw new Error("purchase_order_id must be a valid integer");
     if (!Array.isArray(items) || items.length === 0) return { affectedRows: 0 };
 
     const sql = `
@@ -62,7 +66,8 @@ const PurchaseOrderItem = {
     let affectedRows = 0;
     for (const it of items) {
       const productId = toNum(it.product_id, NaN);
-      if (!Number.isInteger(productId)) throw new Error("product_id must be a valid integer");
+      if (!Number.isInteger(productId))
+        throw new Error("product_id must be a valid integer");
       const values = [
         poId,
         productId,
@@ -82,7 +87,8 @@ const PurchaseOrderItem = {
   // Get items by PO id
   getByPOId: async (purchase_order_id) => {
     const poId = toNum(purchase_order_id, NaN);
-    if (!Number.isInteger(poId)) throw new Error("purchase_order_id must be a valid integer");
+    if (!Number.isInteger(poId))
+      throw new Error("purchase_order_id must be a valid integer");
     const sql = `
       SELECT poi.*, p.product_name
       FROM purchase_order_items poi
@@ -97,16 +103,23 @@ const PurchaseOrderItem = {
   // Get single item by id
   getById: async (id) => {
     const itemId = toNum(id, NaN);
-    if (!Number.isInteger(itemId)) throw new Error("item id must be a valid integer");
-    const [rows] = await q(`SELECT * FROM purchase_order_items WHERE id = ?`, [itemId]);
+    if (!Number.isInteger(itemId))
+      throw new Error("item id must be a valid integer");
+    const [rows] = await q(`SELECT * FROM purchase_order_items WHERE id = ?`, [
+      itemId,
+    ]);
     return rows;
   },
 
   // Update single item
   update: async (id, data) => {
     const itemId = toNum(id, NaN);
-    if (!Number.isInteger(itemId)) throw new Error("item id must be a valid integer");
-    if (!data.product_id) throw new Error("product_id is required for updating purchase_order_items");
+    if (!Number.isInteger(itemId))
+      throw new Error("item id must be a valid integer");
+    if (!data.product_id)
+      throw new Error(
+        "product_id is required for updating purchase_order_items"
+      );
 
     // REMOVE generated columns from SET
     const sql = `
@@ -132,19 +145,25 @@ const PurchaseOrderItem = {
   // Delete all items for a PO
   deleteByPOId: async (purchase_order_id) => {
     const poId = toNum(purchase_order_id, NaN);
-    if (!Number.isInteger(poId)) throw new Error("purchase_order_id must be a valid integer");
-    const [result] = await q(`DELETE FROM purchase_order_items WHERE purchase_order_id = ?`, [poId]);
+    if (!Number.isInteger(poId))
+      throw new Error("purchase_order_id must be a valid integer");
+    const [result] = await q(
+      `DELETE FROM purchase_order_items WHERE purchase_order_id = ?`,
+      [poId]
+    );
     return result;
   },
 
   // Delete single item
   deleteById: async (id) => {
     const itemId = toNum(id, NaN);
-    if (!Number.isInteger(itemId)) throw new Error("item id must be a valid integer");
-    const [result] = await q(`DELETE FROM purchase_order_items WHERE id = ?`, [itemId]);
+    if (!Number.isInteger(itemId))
+      throw new Error("item id must be a valid integer");
+    const [result] = await q(`DELETE FROM purchase_order_items WHERE id = ?`, [
+      itemId,
+    ]);
     return result;
   },
 };
 
 module.exports = PurchaseOrderItem;
-

@@ -58,8 +58,6 @@ const Sales = {
       cash_received = 0,
     } = payload;
 
-    
-
     if (!bill_date) throw new Error("bill_date is required");
     if (!["customer", "vendor", "farmer"].includes(party_type)) {
       throw new Error("party_type must be customer|vendor|farmer");
@@ -98,6 +96,8 @@ const Sales = {
         finalBillNo = `BILL-${String(lastNo + 1).padStart(3, "0")}`;
       }
 
+      console.log(salesTable, "this is sales table");
+
       // Insert header (company specific table)
       const [saleRes] = await conn.execute(
         `INSERT INTO \`${salesTable}\`
@@ -128,14 +128,49 @@ const Sales = {
       for (const item of items) {
         if (!item.product_id || !item.qty) continue;
 
+        // const [prodRows] = await conn.execute(
+        //   `SELECT
+        //      id,
+        //      total AS rate,
+        //      CAST(NULLIF(REPLACE(gst, '%', ''), '') AS DECIMAL(5,2)) AS gst_percent,
+        //      size
+        //    FROM products
+        //    WHERE id=? FOR UPDATE`,
+        //   [item.product_id]
+        // );
+        // if (!prodRows.length)
+        //   throw new Error(`product ${item.product_id} not found`);
+
+        // const prod = prodRows[0];
+        // const currentSizeNum = Number(prod.size || 0);
+        // const qty = Number(item.qty || 0);
+        // if (!Number.isFinite(qty) || qty <= 0)
+        //   throw new Error(`invalid qty for product ${item.product_id}`);
+        // if (qty > currentSizeNum) {
+        //   throw new Error(
+        //     `insufficient stock for product ${item.product_id}: available ${currentSizeNum}, requested ${qty}`
+        //   );
+        // }
+
+        // const rate = Number(item.rate ?? prod.rate ?? 0);
+        // const discount_rate = Number(item.discount_rate ?? 0);
+        // const discount_amount = Number(
+        //   item.discount_amount ?? (rate * qty * discount_rate) / 100
+        // );
+        // const taxable_amount = Number(rate * qty - discount_amount);
+        // const gst_percent = Number(item.gst_percent ?? prod.gst_percent ?? 0);
+        // const gst_amount = Number((taxable_amount * gst_percent) / 100);
+        // const net_total = Number(taxable_amount + gst_amount);
+        // const unit = item.unit || "PCS";
+
         const [prodRows] = await conn.execute(
           `SELECT 
-             id,
-             total AS rate,
-             CAST(NULLIF(REPLACE(gst, '%', ''), '') AS DECIMAL(5,2)) AS gst_percent,
-             size
-           FROM products
-           WHERE id=? FOR UPDATE`,
+     id,
+     total AS rate,
+     CAST(NULLIF(REPLACE(gst, '%', ''), '') AS DECIMAL(5,2)) AS gst_percent,
+     size
+   FROM products
+   WHERE id=? FOR UPDATE`,
           [item.product_id]
         );
         if (!prodRows.length)
@@ -143,21 +178,28 @@ const Sales = {
 
         const prod = prodRows[0];
         const currentSizeNum = Number(prod.size || 0);
-        const qty = Number(item.qty || 0);
-        if (!Number.isFinite(qty) || qty <= 0)
-          throw new Error(`invalid qty for product ${item.product_id}`);
-        if (qty > currentSizeNum) {
+
+        // Use qty_in_grams if provided, otherwise fall back to qty (assuming grams)
+        const qtyInGrams = Number(item.qty_in_grams || item.qty || 0);
+        const qty = Number(item.qty || 0); // Keep original qty for display/calculation
+
+        if (!Number.isFinite(qtyInGrams) || qtyInGrams <= 0)
+          throw new Error(`invalid quantity for product ${item.product_id}`);
+        if (qtyInGrams > currentSizeNum) {
           throw new Error(
-            `insufficient stock for product ${item.product_id}: available ${currentSizeNum}, requested ${qty}`
+            `insufficient stock for product ${item.product_id}: available ${currentSizeNum} grams, requested ${qtyInGrams} grams`
           );
         }
 
-        const rate = Number(item.rate ?? prod.rate ?? 0);
+        // Use rate per kg (item.rate) for calculations, not display_rate
+        // Convert qty in grams to kg for calculations: qtyInGrams / 1000
+        const qtyInKg = qtyInGrams / 1000;
+        const ratePerKg = Number(item.rate ?? prod.rate ?? 0);
         const discount_rate = Number(item.discount_rate ?? 0);
         const discount_amount = Number(
-          item.discount_amount ?? (rate * qty * discount_rate) / 100
+          item.discount_amount ?? (ratePerKg * qtyInKg * discount_rate) / 100
         );
-        const taxable_amount = Number(rate * qty - discount_amount);
+        const taxable_amount = Number(ratePerKg * qtyInKg - discount_amount);
         const gst_percent = Number(item.gst_percent ?? prod.gst_percent ?? 0);
         const gst_amount = Number((taxable_amount * gst_percent) / 100);
         const net_total = Number(taxable_amount + gst_amount);
@@ -193,7 +235,7 @@ const Sales = {
           [
             sale_id,
             item.product_id,
-            rate,
+            ratePerKg,
             qty,
             discount_rate,
             discount_amount,
@@ -206,7 +248,7 @@ const Sales = {
           ]
         );
 
-        const newSize = currentSizeNum - qty;
+        const newSize = currentSizeNum - qtyInGrams;
         await conn.execute(`UPDATE products SET size = ? WHERE id = ?`, [
           String(newSize),
           item.product_id,

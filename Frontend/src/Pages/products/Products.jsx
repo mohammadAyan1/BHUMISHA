@@ -22,13 +22,52 @@ const getDiscountsFromValue = (value) => ({
   discount_25: (value * 25) / 100,
 });
 
-export default function Products() {
+// Helper function to convert size to grams
+const convertToGrams = (size, unit) => {
+  const numericValue = Number(size || 0);
+
+  if (numericValue <= 0) return numericValue;
+
+  switch (unit) {
+    case "ton":
+      return numericValue * 1000 * 1000; // 1 ton = 1,000,000 gram
+    case "quantal":
+      return numericValue * 100 * 1000; // 1 quantal = 100 kg = 100,000 gram
+    case "kg":
+      return numericValue * 1000; // 1 kg = 1000 gram
+    case "gram":
+    default:
+      return numericValue;
+  }
+};
+
+// Helper function to convert grams back to display unit
+const convertFromGrams = (grams, unit) => {
+  const numericValue = Number(grams || 0);
+
+  if (numericValue <= 0) return numericValue;
+
+  switch (unit) {
+    case "ton":
+      return numericValue / (1000 * 1000);
+    case "quantal":
+      return numericValue / (100 * 1000);
+    case "kg":
+      return numericValue / 1000;
+    case "gram":
+    default:
+      return numericValue;
+  }
+};
+
+export default function Products({ open, hide }) {
   const dispatch = useDispatch();
   const { list: products, loading } = useSelector((state) => state.products);
   const { list: categories } = useSelector((state) => state.categories);
 
   const [filterCategory, setFilterCategory] = useState("");
   const [filterProduct, setFilterProduct] = useState("");
+  const [openoPiecesFields, setOpenPiecesFields] = useState(false);
 
   const [openForm, setOpenForm] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
@@ -38,6 +77,8 @@ export default function Products() {
     category_id: "",
     product_name: "",
     size: "",
+    unit: "",
+    pieces: "",
     purchase_rate: "",
     transport_charge: 10,
     local_transport: 5,
@@ -91,17 +132,42 @@ export default function Products() {
     // gst intentionally excluded
   ]);
 
+  useEffect(() => {
+    if (formData?.unit == "box") {
+      setOpenPiecesFields(true);
+    } else {
+      setOpenPiecesFields(false);
+    }
+  }, [formData]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
   };
 
-  // Add Product
   const handleAdd = async () => {
-    const resultAction = await dispatch(addProduct(formData));
+    // Unit required before conversion
+    if (!formData.unit) {
+      alert("Please select the Unit first");
+      return;
+    }
+
+    // Convert size to grams based on unit
+    const gramWeight = convertToGrams(formData.size, formData.unit);
+
+    // Add converted size into a clean request object
+    const finalPayload = {
+      ...formData,
+      size: gramWeight.toString(), // Ensure it's stored as string
+    };
+
+    // Now send converted data to API
+    const resultAction = await dispatch(addProduct(finalPayload));
+
     if (addProduct.fulfilled.match(resultAction)) {
       dispatch(fetchProducts());
     }
+
     setFormData(initialForm);
     setOpenForm(false);
   };
@@ -109,7 +175,22 @@ export default function Products() {
   // Update Product
   const handleUpdate = () => {
     if (!editProduct?.id) return;
-    dispatch(updateProduct({ id: editProduct.id, data: formData }));
+
+    // Unit required before conversion
+    if (!formData.unit) {
+      alert("Please select the Unit first");
+      return;
+    }
+
+    // Convert size to grams based on unit (same as in handleAdd)
+    const gramWeight = convertToGrams(formData.size, formData.unit);
+
+    const finalPayload = {
+      ...formData,
+      size: gramWeight.toString(), // Ensure it's stored as string
+    };
+
+    dispatch(updateProduct({ id: editProduct.id, data: finalPayload }));
     setEditProduct(null);
     setFormData(initialForm);
     setOpenForm(false);
@@ -124,10 +205,14 @@ export default function Products() {
 
   const startEdit = (p) => {
     setEditProduct(p);
+
+    // Convert stored grams back to display unit
+    const displaySize = convertFromGrams(p.size, p.unit);
+
     setFormData({
       category_id: p.category_id ?? "",
       product_name: p.product_name ?? "",
-      size: p.size ?? "",
+      size: displaySize, // Show converted size for editing
       purchase_rate: p.purchase_rate ?? "",
       transport_charge: p.transport_charge ?? 10,
       local_transport: p.local_transport ?? 5,
@@ -139,6 +224,8 @@ export default function Products() {
       total: p.total ?? "",
       gst: p.gst ?? "",
       gstAmount: p.gstAmount ?? 0,
+      unit: p?.unit || "",
+      pieces: p?.pieces || "",
     });
     setOpenForm(true);
   };
@@ -213,11 +300,11 @@ export default function Products() {
       </div>
 
       {/* Product Form Modal */}
-      {openForm && (
+      {(openForm || open) && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white shadow-xl rounded-2xl p-6 border border-gray-100 w-11/12 max-w-5xl max-h-[100vh] overflow-y-auto">
             <h2 className="text-xl font-semibold mb-6 text-gray-700 flex items-center gap-2">
-              🛒 Product Details
+              {editProduct ? "✏️ Edit Product" : "🛒 Add New Product"}
             </h2>
 
             {/* Single Form */}
@@ -232,6 +319,7 @@ export default function Products() {
                   value={formData.category_id}
                   onChange={handleChange}
                   className="border p-3 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"
+                  required
                 >
                   <option value="">Select Category</option>
                   {categories.map((c) => (
@@ -253,23 +341,74 @@ export default function Products() {
                   value={formData.product_name || ""}
                   onChange={handleChange}
                   className="border p-3 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"
+                  required
                 />
+              </div>
+
+              <div className="flex flex-col">
+                <label className="mb-2 text-sm font-semibold text-gray-600">
+                  Unit
+                </label>
+                <select
+                  name="unit"
+                  value={formData.unit}
+                  onChange={handleChange}
+                  className="border p-3 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Select unit</option>
+                  <option value="ton">Ton</option>
+                  <option value="quantal">Quantal</option>
+                  <option value="kg">KG</option>
+                  <option value="gram">Gram</option>
+                  <option value="box">Box</option>
+                </select>
               </div>
 
               {/* Size */}
               <div className="flex flex-col">
                 <label className="mb-2 text-sm font-semibold text-gray-600">
-                  QTY (5KG, 10KG, 1L)
+                  Quantity (
+                  {formData.unit
+                    ? `in ${formData.unit}`
+                    : "e.g., 5KG, 10KG, 1L"}
+                  )
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   name="size"
                   value={formData.size || ""}
                   onChange={handleChange}
-                  placeholder="e.g., 5KG, 10KG, 1L"
+                  placeholder={
+                    formData.unit
+                      ? `Enter quantity in ${formData.unit}`
+                      : "Select unit first"
+                  }
                   className="border p-3 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"
+                  required
+                  step="0.01"
                 />
+                <small className="text-gray-500 mt-1">
+                  This will be converted to grams for storage
+                </small>
               </div>
+
+              {openoPiecesFields && (
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm font-semibold text-gray-600">
+                    Pieces in Box
+                  </label>
+                  <input
+                    type="number"
+                    name="pieces"
+                    value={formData.pieces}
+                    onChange={handleChange}
+                    placeholder="Number of pieces in box"
+                    className="border p-3 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              )}
 
               {/* Purchase Rate */}
               <div className="flex flex-col">
@@ -282,6 +421,8 @@ export default function Products() {
                   value={formData.purchase_rate || ""}
                   onChange={handleChange}
                   className="border p-3 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"
+                  required
+                  step="0.01"
                 />
               </div>
 
@@ -296,6 +437,8 @@ export default function Products() {
                   value={formData.transport_charge || 10}
                   onChange={handleChange}
                   className="border p-3 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"
+                  required
+                  step="0.01"
                 />
               </div>
 
@@ -310,6 +453,8 @@ export default function Products() {
                   value={formData.local_transport || 5}
                   onChange={handleChange}
                   className="border p-3 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"
+                  required
+                  step="0.01"
                 />
               </div>
 
@@ -324,6 +469,8 @@ export default function Products() {
                   value={formData.packaging_cost || 1.5}
                   onChange={handleChange}
                   className="border p-3 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"
+                  required
+                  step="0.01"
                 />
               </div>
 
@@ -338,6 +485,7 @@ export default function Products() {
                   value={formData.hsn_code || ""}
                   onChange={handleChange}
                   className="border p-3 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"
+                  required
                 />
               </div>
 
@@ -352,13 +500,15 @@ export default function Products() {
                   value={formData.gst || ""}
                   onChange={handleChange}
                   className="border p-3 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"
+                  required
+                  step="0.01"
                 />
               </div>
 
               {/* ReadOnly Fields */}
               <div className="flex flex-col">
                 <label className="mb-2 text-sm font-semibold text-gray-600">
-                  Value
+                  Value (Landed Cost)
                 </label>
                 <input
                   type="number"
@@ -395,13 +545,13 @@ export default function Products() {
 
               <div className="flex flex-col md:col-span-3">
                 <label className="mb-2 text-sm font-semibold text-gray-600">
-                  Total Sales Rate
+                  Total Sales Rate (Value × 1.5)
                 </label>
                 <input
                   type="number"
                   value={formData.total || ""}
                   readOnly
-                  className="border p-3 rounded-lg bg-gray-100 text-gray-600"
+                  className="border p-3 rounded-lg bg-gray-100 text-gray-600 font-bold text-lg"
                 />
               </div>
             </div>
@@ -409,22 +559,27 @@ export default function Products() {
             {/* Buttons */}
             <div className="mt-6 flex justify-end gap-4">
               <button
-                onClick={() => setOpenForm(false)}
-                className="px-6 curser-pointer py-2 bg-red-400 hover:bg-gray-500 text-white rounded-lg"
+                onClick={() => {
+                  setOpenForm(false);
+                  hide(false);
+                  setEditProduct(null);
+                  setFormData(initialForm);
+                }}
+                className="px-6 cursor-pointer py-2 bg-gray-400 hover:bg-gray-500 text-white rounded-lg transition-colors"
               >
                 ❌ Cancel
               </button>
               {editProduct ? (
                 <button
                   onClick={handleUpdate}
-                  className="px-6 py-2 curser-pointer bg-green-600 hover:bg-green-700 text-white rounded-lg"
+                  className="px-6 py-2 cursor-pointer bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
                 >
-                  ✅ Update
+                  ✅ Update Product
                 </button>
               ) : (
                 <button
                   onClick={handleAdd}
-                  className="px-6 py-2 curser-pointer bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                  className="px-6 py-2 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                 >
                   ➕ Add Product
                 </button>
@@ -446,75 +601,98 @@ export default function Products() {
                 <th className="p-3">HSN Code</th>
                 <th className="p-3">Product Name</th>
                 <th className="p-3">Quantity</th>
+                <th className="p-3">Unit</th>
+                <th className="p-3">Pieces</th>
+                <th className="p-3">Sales Rate</th>
                 <th className="p-3 text-center">Details</th>
                 <th className="p-3 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {groupedProducts.map((cat) => (
-                <React.Fragment key={cat.id}>
-                  {/* Category Row */}
-                  <tr className="bg-yellow-200">
-                    <td
-                      colSpan="5"
-                      className="p-3 font-bold text-gray-800 text-lg"
-                    >
-                      {cat.name}
-                    </td>
-                  </tr>
-                  {cat.products.map((p, index) => (
-                    <tr
-                      key={p.id}
-                      className="border-b hover:bg-gray-50 transition duration-200 ease-in-out hover:shadow-lg"
-                    >
-                      <td className="p-3 text-center font-medium">
-                        {index + 1}
-                      </td>
-                      <td className="p-3">{p.hsn_code}</td>
-                      <td className="p-3 font-semibold text-gray-700">
-                        {p.product_name} {p?.type == "custom" && `(${p?.type})`}
-                      </td>
-                      <td className="p-3">{p.size ?? "-"}</td>
-                      <td className="p-3 text-center">
-                        <IconButton
-                          color="primary"
-                          className="hover:scale-110 transition-transform"
-                          onClick={() => setViewProduct(p)}
-                        >
-                          <VisibilityIcon />
-                        </IconButton>
-                      </td>
-                      <td className="p-3 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <IconButton
-                            color="primary"
-                            className="hover:scale-110 transition-transform"
-                            onClick={() => {
-                              if (p.type !== "custom") {
-                                startEdit(p);
-                              } else {
-                                navigate(`/customproduct/${p.id}`);
-                              }
-                            }}
-                            title="Edit"
-                          >
-                            <EditIcon />
-                          </IconButton>
-
-                          <IconButton
-                            color="error"
-                            className="hover:scale-110 transition-transform"
-                            onClick={() => handleDelete(p.id)}
-                            title="Delete"
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </div>
+              {groupedProducts.map((cat) => {
+                return (
+                  <React.Fragment key={cat.id}>
+                    {/* Category Row */}
+                    <tr className="bg-yellow-200">
+                      <td
+                        colSpan="9"
+                        className="p-3 font-bold text-gray-800 text-lg"
+                      >
+                        {cat.name}
                       </td>
                     </tr>
-                  ))}
-                </React.Fragment>
-              ))}
+                    {cat.products.map((p, index) => {
+                      // Convert stored grams back to display unit for table
+                      const displaySize = convertFromGrams(p.size, p.unit);
+
+                      return (
+                        <tr
+                          key={p.id}
+                          className="border-b hover:bg-gray-50 transition duration-200 ease-in-out hover:shadow-lg"
+                        >
+                          <td className="p-3 text-center font-medium">
+                            {index + 1}
+                          </td>
+                          <td className="p-3">{p.hsn_code || "-"}</td>
+                          <td className="p-3 font-semibold text-gray-700">
+                            {p.product_name}{" "}
+                            {p?.type == "custom" && `(${p?.type})`}
+                          </td>
+                          <td className="p-3">
+                            {displaySize ? displaySize.toFixed(3) : "-"}
+                          </td>
+                          <td className="p-3">{p?.unit || "-"}</td>
+                          <td className="p-3">{p?.pieces || "-"}</td>
+                          <td className="p-3 font-bold text-green-600">
+                            ₹{p.total || "0.00"}
+                          </td>
+                          <td className="p-3 text-center">
+                            <IconButton
+                              color="primary"
+                              className="hover:scale-110 transition-transform"
+                              onClick={() => setViewProduct(p)}
+                              title="View Details"
+                            >
+                              <VisibilityIcon />
+                            </IconButton>
+                          </td>
+                          <td className="p-3 text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <IconButton
+                                color="primary"
+                                className="hover:scale-110 transition-transform"
+                                onClick={() => {
+                                  if (p.type !== "custom") {
+                                    startEdit(p);
+                                  } else {
+                                    navigate(`/customproduct/${p.id}`);
+                                  }
+                                }}
+                                title={
+                                  p.type === "custom"
+                                    ? "Edit Custom Product"
+                                    : "Edit Product"
+                                }
+                              >
+                                <EditIcon />
+                              </IconButton>
+
+                              <IconButton
+                                color="error"
+                                className="hover:scale-110 transition-transform"
+                                onClick={() => handleDelete(p.id)}
+                                title="Delete"
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -557,7 +735,7 @@ export default function Products() {
                       HSN Code
                     </label>
                     <p className="text-lg font-semibold text-gray-800 mt-1">
-                      {viewProduct.hsn_code}
+                      {viewProduct.hsn_code || "-"}
                     </p>
                   </div>
                   <div className="bg-white rounded-xl p-4 shadow-sm">
@@ -573,9 +751,35 @@ export default function Products() {
                       Size/QTY
                     </label>
                     <p className="text-lg font-semibold text-gray-800 mt-1">
-                      {viewProduct.size || "-"}
+                      {convertFromGrams(
+                        viewProduct.size,
+                        viewProduct.unit
+                      ).toFixed(3)}{" "}
+                      {viewProduct.unit}
+                      <br />
+                      <small className="text-gray-500">
+                        (Stored as {viewProduct.size} grams)
+                      </small>
                     </p>
                   </div>
+                  <div className="bg-white rounded-xl p-4 shadow-sm">
+                    <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      Unit
+                    </label>
+                    <p className="text-lg font-semibold text-gray-800 mt-1">
+                      {viewProduct.unit || "-"}
+                    </p>
+                  </div>
+                  {viewProduct.pieces && (
+                    <div className="bg-white rounded-xl p-4 shadow-sm">
+                      <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Pieces in Box
+                      </label>
+                      <p className="text-lg font-semibold text-gray-800 mt-1">
+                        {viewProduct.pieces}
+                      </p>
+                    </div>
+                  )}
                   <div className="bg-white rounded-xl p-4 shadow-sm">
                     <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide">
                       GST Rate
@@ -598,7 +802,7 @@ export default function Products() {
                       Purchase Rate
                     </label>
                     <p className="text-xl font-bold text-blue-600 mt-1">
-                      ₹{viewProduct.purchase_rate}
+                      ₹{viewProduct.purchase_rate || "0.00"}
                     </p>
                   </div>
                   <div className="bg-white rounded-xl p-4 shadow-sm">
@@ -606,7 +810,7 @@ export default function Products() {
                       Transport Charge
                     </label>
                     <p className="text-xl font-bold text-orange-600 mt-1">
-                      ₹{viewProduct.transport_charge}
+                      ₹{viewProduct.transport_charge || "0.00"}
                     </p>
                   </div>
                   <div className="bg-white rounded-xl p-4 shadow-sm">
@@ -614,7 +818,7 @@ export default function Products() {
                       Local Transport
                     </label>
                     <p className="text-xl font-bold text-orange-600 mt-1">
-                      ₹{viewProduct.local_transport}
+                      ₹{viewProduct.local_transport || "0.00"}
                     </p>
                   </div>
                   <div className="bg-white rounded-xl p-4 shadow-sm">
@@ -622,7 +826,7 @@ export default function Products() {
                       Packaging Cost
                     </label>
                     <p className="text-xl font-bold text-purple-600 mt-1">
-                      ₹{viewProduct.packaging_cost}
+                      ₹{viewProduct.packaging_cost || "0.00"}
                     </p>
                   </div>
                   <div className="bg-white rounded-xl p-4 shadow-sm col-span-1 md:col-span-2 lg:col-span-2">
@@ -630,7 +834,7 @@ export default function Products() {
                       Total Value (Landed Cost)
                     </label>
                     <p className="text-2xl font-bold text-green-600 mt-1">
-                      ₹{viewProduct.value}
+                      ₹{viewProduct.value || "0.00"}
                     </p>
                   </div>
                 </div>
@@ -647,7 +851,7 @@ export default function Products() {
                       5KG 30% Margin
                     </label>
                     <p className="text-xl font-bold text-indigo-600 mt-1">
-                      ₹{viewProduct.discount_30}
+                      ₹{viewProduct.discount_30 || "0.00"}
                     </p>
                   </div>
                   <div className="bg-white rounded-xl p-4 shadow-sm">
@@ -655,7 +859,7 @@ export default function Products() {
                       10KG 25% Margin
                     </label>
                     <p className="text-xl font-bold text-indigo-600 mt-1">
-                      ₹{viewProduct.discount_25}
+                      ₹{viewProduct.discount_25 || "0.00"}
                     </p>
                   </div>
                   <div className="bg-white rounded-xl p-4 shadow-sm">
@@ -663,7 +867,7 @@ export default function Products() {
                       Total Sales Rate
                     </label>
                     <p className="text-2xl font-bold text-red-600 mt-1">
-                      ₹{viewProduct.total}
+                      ₹{viewProduct.total || "0.00"}
                     </p>
                   </div>
                 </div>

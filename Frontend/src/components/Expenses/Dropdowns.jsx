@@ -20,6 +20,7 @@ const Dropdowns = () => {
     date: "",
     expensedate: "",
     incentive: "",
+    company_id: "",
   });
 
   const [disableBtn, setDisableBtn] = useState(false);
@@ -155,6 +156,10 @@ const Dropdowns = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!formData?.company_id) {
+      alert("please select a company");
+    }
 
     if (validateForm()) {
       const fd = new FormData();
@@ -639,6 +644,22 @@ const Dropdowns = () => {
     }
   };
 
+  useEffect(() => {
+    const rawData = localStorage.getItem("currentCompany");
+    if (!rawData) return;
+
+    const companyDetails = JSON.parse(rawData); // ← convert to object
+
+    console.log(companyDetails, "QWERTYU");
+
+    setFormData((prev) => ({
+      ...prev,
+      company_id: companyDetails?.id, // now works
+    }));
+  }, [formData]);
+
+  // console.log(company_id, "ASDFGHJK");
+
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4">
       <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
@@ -713,7 +734,7 @@ const Dropdowns = () => {
                 name="expensedate"
                 type="date"
                 value={formData.expensedate}
-                onChange={handleCategoryChange}
+                onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               />
             </div>

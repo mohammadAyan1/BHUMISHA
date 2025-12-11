@@ -23,8 +23,10 @@ const purchaseController = {
       const code = normalize(req.headers["x-company-code"] || "");
       if (!code)
         return res.status(400).json({ error: "x-company-code required" });
+
       const purchasesTable = tn(code, "purchases");
       const itemsTable = tn(code, "purchase_items");
+
       let body;
       try {
         body = JSON.parse(req.body.data);
@@ -43,6 +45,7 @@ const purchaseController = {
         items,
         status,
         farmer_name,
+        unit,
       } = body;
 
       if (!Array.isArray(items) || items.length === 0) {
@@ -144,10 +147,23 @@ const purchaseController = {
           }
         }
       }
+
+      // Ensure unit column exists in dynamic tables
+      await connection
+        .query(
+          `
+      ALTER TABLE \`${purchasesTable}\`
+      ADD COLUMN unit VARCHAR(50) DEFAULT 'kg'
+    `
+        )
+        .catch((err) => {
+          if (err.code !== "ER_DUP_FIELDNAME") throw err;
+        });
+
       const [purchaseResult] = await connection.query(
         `INSERT INTO \`${purchasesTable}\`
-         (vendor_id, farmer_id, party_type, gst_no, bill_no, bill_date, total_amount, status, bill_img)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (vendor_id, farmer_id, party_type, gst_no, bill_no, bill_date, total_amount, status, bill_img,unit)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
         [
           resolvedVendorId,
           resolvedFarmerId,
@@ -158,6 +174,7 @@ const purchaseController = {
           total_amount,
           status || "Active",
           billUrl,
+          unit || "kg",
         ]
       );
       const purchaseId = purchaseResult.insertId;
@@ -219,6 +236,7 @@ const purchaseController = {
         .json({ error: err.message || "Failed to create purchase" });
     }
   },
+
   update: async (req, res) => {
     const connection = db.promise();
     try {

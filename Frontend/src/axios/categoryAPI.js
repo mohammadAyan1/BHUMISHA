@@ -6,8 +6,8 @@ const categoryAPI = {
   getAll: () => api.get("/categories"),
   update: (id, data) => api.put(`/categories/${id}`, data),
   remove: (id) => api.delete(`/categories/${id}`),
-  updateStatus: (id, status) => api.patch(`/categories/${id}/status`, { status }),
+  updateStatus: (id, status) =>
+    api.patch(`/categories/${id}/status`, { status }),
 };
 
 export default categoryAPI;
-  
