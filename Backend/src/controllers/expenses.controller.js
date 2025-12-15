@@ -8,38 +8,6 @@ const pick = (...values) => {
 };
 
 const allExpenses = {
-  // getAllExpenses: (req, res) => {
-  //   try {
-  //     const sql = `
-  //     SELECT
-  //       e.id,
-  //       e.expenses_for,
-  //       e.expenses_type,
-  //       CASE
-  //         WHEN e.expenses_for = 'emp' THEN emp.name
-  //         ELSE e.master
-  //       END AS master_name,
-  //       e.amount,
-  //       e.remark,
-  //       e.documents
-  //     FROM expenses e
-  //     LEFT JOIN employees emp
-  //       ON e.expenses_for = 'emp' AND e.master = emp.id
-  //   `;
-
-  //     pool.query(sql, (err, results) => {
-  //       if (err) {
-  //         console.error(err);
-  //         return res.status(500).json({ success: false, error: err.message });
-  //       }
-  //       return res.json({ success: true, data: results });
-  //     });
-  //   } catch (error) {
-  //     console.error(error);
-  //     return res.status(500).json({ success: false, error: error.message });
-  //   }
-  // },
-
   getAllExpenses: (req, res) => {
     try {
       const sql = `

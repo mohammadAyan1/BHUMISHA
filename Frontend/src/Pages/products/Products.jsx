@@ -602,7 +602,7 @@ export default function Products({ open, hide }) {
                 <th className="p-3">Product Name</th>
                 <th className="p-3">Quantity</th>
                 <th className="p-3">Unit</th>
-                <th className="p-3">Pieces</th>
+                {/* <th className="p-3">Pieces</th> */}
                 <th className="p-3">Sales Rate</th>
                 <th className="p-3 text-center">Details</th>
                 <th className="p-3 text-center">Actions</th>
@@ -642,7 +642,7 @@ export default function Products({ open, hide }) {
                             {displaySize ? displaySize.toFixed(3) : "-"}
                           </td>
                           <td className="p-3">{p?.unit || "-"}</td>
-                          <td className="p-3">{p?.pieces || "-"}</td>
+                          {/* <td className="p-3">{p?.pieces || "-"}</td> */}
                           <td className="p-3 font-bold text-green-600">
                             ₹{p.total || "0.00"}
                           </td>

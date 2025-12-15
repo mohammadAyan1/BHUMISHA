@@ -17,8 +17,9 @@ const ClusterInventory = () => {
     qty: "",
     purchase: "",
     sale: "",
-    date: "",
+    date: Date.now(),
     unit: "",
+    hsn: "",
   });
 
   const { list } = useSelector((state) => state.secondClusterProducts);
@@ -38,11 +39,12 @@ const ClusterInventory = () => {
 
     if (name === "productId") {
       const product = list?.find((p) => p.id == value);
+      console.log(product);
+
       setFormData((prev) => ({
         ...prev,
         productId: value,
-        purchase: product?.purchase_rate || "",
-        sale: product?.sale_rate || "",
+        hsn: product?.hsn_number,
       }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
@@ -67,10 +69,10 @@ const ClusterInventory = () => {
   };
 
   // Convert grams to kg for display
-  const convertToKg = (qtyInGram) => {
-    if (!qtyInGram) return 0;
-    return (qtyInGram / 1000).toFixed(2);
-  };
+  // const convertToKg = (qtyInGram) => {
+  //   if (!qtyInGram) return 0;
+  //   return (qtyInGram / 1000).toFixed(2);
+  // };
 
   const handleSubmitData = (e) => {
     e.preventDefault();
@@ -94,6 +96,7 @@ const ClusterInventory = () => {
       sale: "",
       date: "",
       unit: "",
+      hsn: "",
     });
   };
 
@@ -162,6 +165,17 @@ const ClusterInventory = () => {
             />
           </div>
 
+          <div className="flex flex-col">
+            <label className="mb-2 font-medium text-gray-700">HSN Number</label>
+            <input
+              type="text"
+              value={formData.hsn}
+              readOnly
+              className="border rounded-lg p-2"
+              placeholder="Enter HSN Number"
+            />
+          </div>
+
           {/* Sale Rate Editable */}
           <div className="flex flex-col">
             <label className="mb-2 font-medium text-gray-700">Sale Rate</label>
@@ -190,7 +204,7 @@ const ClusterInventory = () => {
           </div>
 
           {/* Date */}
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <label className="mb-2 font-medium text-gray-700">Date</label>
             <input
               type="date"
@@ -200,7 +214,7 @@ const ClusterInventory = () => {
               required
               className="border rounded-lg p-2"
             />
-          </div>
+          </div> */}
 
           {/* Unit */}
           <div className="flex flex-col">
@@ -245,24 +259,28 @@ const ClusterInventory = () => {
               <th className="py-2 px-4 border-b text-left">Purchase Rate</th>
               <th className="py-2 px-4 border-b text-left">Sale Rate</th>
               <th className="py-2 px-4 border-b text-left">Quantity (kg)</th>
-              <th className="py-2 px-4 border-b text-left">Unit</th>
+              {/* <th className="py-2 px-4 border-b text-left">Unit</th> */}
               <th className="py-2 px-4 border-b text-left">Date</th>
             </tr>
           </thead>
           <tbody>
-            {clusterInventory?.map((item) => (
-              <tr key={item?.id} className="hover:bg-gray-50">
-                <td className="py-2 px-4 border-b">{item?.product_name}</td>
-                <td className="py-2 px-4 border-b">{item?.cluster_manager}</td>
-                <td className="py-2 px-4 border-b">{item?.purchase_rate}</td>
-                <td className="py-2 px-4 border-b">{item?.sale_rate}</td>
-                <td className="py-2 px-4 border-b">
-                  {(item?.qty / 1000).toFixed(2)}
-                </td>
-                <td className="py-2 px-4 border-b">{item?.unit}</td>
-                <td className="py-2 px-4 border-b">{item?.entry_date}</td>
-              </tr>
-            ))}
+            {clusterInventory?.map((item) => {
+              return (
+                <tr key={item?.id} className="hover:bg-gray-50">
+                  <td className="py-2 px-4 border-b">{item?.product_name}</td>
+                  <td className="py-2 px-4 border-b">
+                    {item?.cluster_manager}
+                  </td>
+                  <td className="py-2 px-4 border-b">{item?.purchase_rate}</td>
+                  <td className="py-2 px-4 border-b">{item?.sale_rate}</td>
+                  <td className="py-2 px-4 border-b">
+                    {(item?.qty / 1000).toFixed(2)}
+                  </td>
+                  {/* <td className="py-2 px-4 border-b">{item?.unit}</td> */}
+                  <td className="py-2 px-4 border-b">{item?.entry_date}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

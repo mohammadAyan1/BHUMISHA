@@ -3,16 +3,16 @@ const pool = require("../config/db");
 const secondClusterProducts = {
   async create(req, res) {
     try {
-      const { name, hsn, rate, sale } = req.body;
+      const { name, hsn } = req.body;
       console.log(req.body);
 
       const sql = `
         INSERT INTO cluster_second_products 
-        (name, hsn_number, sale_rate, purchase_rate)
-        VALUES (?, ?, ?, ?)
+        (name, hsn_number)
+        VALUES (?, ?)
       `;
 
-      pool.query(sql, [name, hsn, sale, rate], (err, result) => {
+      pool.query(sql, [name, hsn], (err, result) => {
         if (err) {
           console.error(err);
           return res

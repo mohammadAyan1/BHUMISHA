@@ -91,7 +91,7 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`fixed top-0 left-0 h-full bg-[var(--bg)] shadow-lg transition-all duration-300 z-50
+      className={`fixed top-0 flex flex-col left-0 h-full bg-[var(--bg)] shadow-lg transition-all duration-300 z-50
       ${collapsed ? "w-20" : "w-64"}
       ${isOpen ? "translate-x-0" : "-translate-x-64"}
       md:translate-x-0 overflow-auto`}
@@ -184,19 +184,6 @@ export default function Sidebar({
         </Link>
 
         <Link
-          to="/cluster-products"
-          className={linkClass("/cluster-products")}
-          onClick={handleNavClick}
-        >
-          <Sticker
-            label="Cluster Products"
-            symbol="🧑‍💼"
-            decorative={collapsed ? false : true}
-          />
-          {!collapsed && "Cluster Products"}
-        </Link>
-
-        <Link
           to="/farmer"
           className={linkClass("/farmer")}
           onClick={handleNavClick}
@@ -207,19 +194,6 @@ export default function Sidebar({
             decorative={collapsed ? false : true}
           />
           {!collapsed && "Farmer"}
-        </Link>
-
-        <Link
-          to="/cluster-create"
-          className={linkClass("/cluster-create")}
-          onClick={handleNavClick}
-        >
-          <Sticker
-            label="Cluster Create"
-            symbol="👤"
-            decorative={collapsed ? false : true}
-          />
-          {!collapsed && "Cluster Create"}
         </Link>
 
         <Link
@@ -385,10 +359,36 @@ export default function Sidebar({
         >
           <Sticker
             label="expenses"
-            symbol="₹"
+            symbol={"📠"}
             decorative={collapsed ? false : true}
           />
           {!collapsed && "expenses"}
+        </Link>
+
+        <Link
+          to="/cluster-create"
+          className={linkClass("/cluster-create")}
+          onClick={handleNavClick}
+        >
+          <Sticker
+            label="Cluster Create"
+            symbol="👤"
+            decorative={collapsed ? false : true}
+          />
+          {!collapsed && "Cluster Create"}
+        </Link>
+
+        <Link
+          to="/cluster-products"
+          className={linkClass("/cluster-products")}
+          onClick={handleNavClick}
+        >
+          <Sticker
+            label="Cluster Products"
+            symbol="🧑‍💼"
+            decorative={collapsed ? false : true}
+          />
+          {!collapsed && "Cluster Products"}
         </Link>
 
         <Link
@@ -398,7 +398,7 @@ export default function Sidebar({
         >
           <Sticker
             label="Cluster Inventory"
-            symbol="🏷️"
+            symbol="📦"
             decorative={collapsed ? false : true}
           />
           {!collapsed && "Cluster Inventory"}
@@ -411,10 +411,23 @@ export default function Sidebar({
         >
           <Sticker
             label="Cluster transaction"
-            symbol="🏷️"
+            symbol="®️"
             decorative={collapsed ? false : true}
           />
           {!collapsed && "Cluster transaction"}
+        </Link>
+
+        <Link
+          to="/cluster-cultivated"
+          className={linkClass("/cluster-cultivated")}
+          onClick={handleNavClick}
+        >
+          <Sticker
+            label="Cluster Cultivated"
+            symbol="🌾"
+            decorative={collapsed ? false : true}
+          />
+          {!collapsed && "Cluster cultivated"}
         </Link>
       </nav>
     </aside>

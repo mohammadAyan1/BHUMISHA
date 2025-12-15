@@ -11,6 +11,7 @@ const FarmDetailsPage = () => {
     village: "",
     size: "",
     type: "",
+    district: "",
   });
 
   const dispatch = useDispatch();
@@ -30,17 +31,19 @@ const FarmDetailsPage = () => {
 
   const handleSubmitData = (e) => {
     e.preventDefault();
-    dispatch(addFarm(farmForm)).then(() => {
-      dispatch(fetchFarms());
-      setFarmForm({
-        farmerId: "",
-        location: "",
-        size: "",
-        type: "",
-        state: "",
-        village: "",
-      });
+    dispatch(addFarm(farmForm));
+    // .then(() => {
+    // dispatch(fetchFarms());
+    setFarmForm({
+      farmerId: "",
+      location: "",
+      size: "",
+      type: "",
+      state: "",
+      village: "",
+      district: "",
     });
+    // });
   };
 
   return (
@@ -108,6 +111,19 @@ const FarmDetailsPage = () => {
           </div>
 
           <div className="flex flex-col">
+            <label className="font-medium mb-1">District</label>
+            <input
+              type="text"
+              name="district"
+              value={farmForm.district}
+              onChange={handleInputChange}
+              className="border p-3 rounded-lg shadow-sm"
+              placeholder="Enter district"
+              required
+            />
+          </div>
+
+          <div className="flex flex-col">
             <label className="font-medium mb-1">City/Village</label>
             <input
               type="text"
@@ -124,7 +140,7 @@ const FarmDetailsPage = () => {
           <div className="flex flex-col">
             <label className="font-medium mb-1">Farm Size</label>
             <input
-              type="text"
+              type="number"
               name="size"
               value={farmForm.size}
               onChange={handleInputChange}
@@ -174,8 +190,8 @@ const FarmDetailsPage = () => {
               <th className="p-3 border text-left">Location</th>
               <th className="p-3 border text-left">Size</th>
               <th className="p-3 border text-left">Type</th>
-              <th className="p-3 border text-left">District</th>
               <th className="p-3 border text-left">City/Village</th>
+              <th className="p-3 border text-left">District</th>
             </tr>
           </thead>
 
@@ -190,8 +206,8 @@ const FarmDetailsPage = () => {
                   <td className="p-3 border">{item.location}</td>
                   <td className="p-3 border">{item.size}</td>
                   <td className="p-3 border">{item.farm_type}</td>
-                  <td className="p-3 border">{item.district}</td>
                   <td className="p-3 border">{item.village}</td>
+                  <td className="p-3 border">{item.farm_district}</td>
                 </tr>
               ))
             ) : (

@@ -11,7 +11,8 @@ const getClusters = (req, res) => {
       c.address AS company_address,
       c.contact_no AS company_contact_no,
       cc.cluster_location,
-      cc.cluster_manager
+      cc.cluster_manager,
+      cc.district
     FROM company_clusters cc
     LEFT JOIN companies c ON cc.company_id = c.id
     ORDER BY cc.id DESC
@@ -27,12 +28,12 @@ const getClusters = (req, res) => {
 const createCluster = (req, res) => {
   console.log(req?.body);
 
-  const { companyId, location, manager, state, village } = req.body;
+  const { companyId, location, manager, state, village, district } = req.body;
   const sql =
-    "INSERT INTO company_clusters (company_id, cluster_location, cluster_manager,state,city) VALUES (?, ?, ?,?,?)";
+    "INSERT INTO company_clusters (company_id, cluster_location, cluster_manager,state,city,district) VALUES (?, ?, ?,?,?,?)";
   pool.query(
     sql,
-    [companyId, location, manager, state, village],
+    [companyId, location, manager, state, village, district],
     (err, result) => {
       if (err) return res.status(500).send(err);
       res.status(201).json({ message: "Cluster created", id: result.insertId });

@@ -252,17 +252,13 @@ export default function SalesInvoice() {
   useEffect(() => {
     if (!sale) return; // wait until sale data is loaded
 
-    
-
     const fetchData = async () => {
       try {
-        
         const res = await api.get("/vendor-bank-details/fetchByName", {
           params: { mobile_no: sale.party_phone }, // ✅ correct key
         });
 
         setPatyBank(res?.data?.data);
-        
       } catch (err) {
         console.error("Error fetching data:", err);
       }
@@ -287,13 +283,7 @@ export default function SalesInvoice() {
     state_code: sale.party_state_code || sale.state_code,
   };
 
-  
-
-  
-
   const image_url = import.meta.env.VITE_IMAGE_URL;
-
-  
 
   return (
     <div className="flex flex-col items-center py-6 bg-gray-50 min-h-screen">
@@ -328,7 +318,7 @@ export default function SalesInvoice() {
       <div
         id="invoice-wrap"
         ref={ref}
-        className="bg-white text-black shadow max-w-[794px] w-[794px] p-0 print:p-0"
+        className="bg-white text-black shadow max-w-[784px] w-[794px] p-0 print:p-0"
         style={{ fontFamily: "Arial, sans-serif" }}
       >
         {/* Outer border */}
@@ -757,14 +747,36 @@ export default function SalesInvoice() {
       </div>
 
       <style>{`
-        @media print {
-          @page { size: A4; margin: 8mm; }
-          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          button, .no-print { display: none !important; }
-          .sidebar, .navbar { display: none !important; }
-          #invoice-wrap { margin: 0 !important; width: 100% !important; box-shadow: none !important; }
-        }
-      `}</style>
+@media print {
+  @page {
+    size: A4;
+    margin: 1.5;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #invoice-wrap,
+  #invoice-wrap * {
+    visibility: visible;
+  }
+
+  #invoice-wrap {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 794px; /* exact A4 width in px */
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+`}</style>
     </div>
   );
 }

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { fetchClustersInventory } from "../../features/ClusterInventory/ClusterInventory";
+import { fetchClustersInventoryByClusterId } from "../../features/ClusterInventory/ClusterInventory";
 import { fetchFarmers } from "../../features/farmers/farmerSlice";
 import { fetchClusters } from "../../features/clusterAdded/ClusterAdded";
 import {
   createClusterTransaction,
   fetchClusterTransaction,
 } from "../../features/ClusterTransaction/ClusterTransaction";
+
+import { fetchAllClustersProduct } from "../../features/ClusterProducts/ClusterProducts";
 
 const ClusterTransaction = () => {
   const dispatch = useDispatch();
@@ -30,7 +32,7 @@ const ClusterTransaction = () => {
     productName: "",
     salesRate: "",
     purchaseRate: "",
-    type: "",
+    type: "sale",
     gstper: "",
     date: "",
     billno: "",
@@ -44,9 +46,6 @@ const ClusterTransaction = () => {
   });
 
   useEffect(() => {
-    dispatch(fetchClustersInventory()).then((res) =>
-      setClusterProducts(res?.payload?.data)
-    );
     dispatch(fetchFarmers()).then((res) => setFarmer(res?.payload));
     dispatch(fetchClusters()).then((res) => setCluster(res?.payload));
     dispatch(fetchClusterTransaction());
@@ -72,10 +71,6 @@ const ClusterTransaction = () => {
         return qty;
     }
   };
-
-  useEffect(() => {
-    console.log(clusterProducts);
-  }, [clusterProducts]);
 
   // ----------------------------------
   // CALCULATE TOTAL
@@ -104,6 +99,8 @@ const ClusterTransaction = () => {
     if (name === "product") {
       const selected = JSON.parse(value);
 
+      console.log(selected);
+
       // ⭐ Set Available Qty in KG (readonly field)
       setAvailableQtyKG(parseFloat(selected.qty) / 1000);
 
@@ -111,8 +108,9 @@ const ClusterTransaction = () => {
         ...prev,
         productList: selected,
         productName: selected?.product_name,
-        salesRate: selected?.product_sale_rate,
-        purchaseRate: selected?.product_purchase_rate,
+        salesRate: selected?.product_sale_rate || selected?.sale_rate,
+        purchaseRate:
+          selected?.product_purchase_rate || selected?.purchase_rate,
       }));
     }
 
@@ -172,6 +170,22 @@ const ClusterTransaction = () => {
     });
   };
 
+  useEffect(() => {
+    if (formData?.type === "sale" && formData?.clusterId) {
+      dispatch(fetchClustersInventoryByClusterId(formData.clusterId)).then(
+        (res) => {
+          console.log("sale response", res);
+          setClusterProducts(res?.payload?.data);
+        }
+      );
+    } else if (formData?.type === "purchase") {
+      dispatch(fetchAllClustersProduct()).then((res) => {
+        console.log("purchase response", res);
+        setClusterProducts(res?.payload?.data);
+      });
+    }
+  }, [dispatch, formData]);
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       {/* FORM */}
@@ -190,9 +204,8 @@ const ClusterTransaction = () => {
               onChange={handleInputChange}
               className="w-full p-2 border rounded"
             >
-              <option value="">Select Type</option>
-              <option value="purchase">Purchase</option>
               <option value="sale">Sale</option>
+              <option value="purchase">Purchase</option>
             </select>
           </div>
 
@@ -244,7 +257,7 @@ const ClusterTransaction = () => {
               <option value="">Select Product</option>
               {clusterProducts.map((item) => (
                 <option key={item?.id} value={JSON.stringify(item)}>
-                  {item?.product_name}
+                  {item?.product_name || item?.name}
                 </option>
               ))}
             </select>

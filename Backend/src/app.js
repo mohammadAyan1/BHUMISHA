@@ -61,6 +61,7 @@ const clusterProductAssignRoutes = require("./routes/clusterProductAssignRoutes"
 const clusterSecondRoutes = require("./routes/clusterSecondProduct.routes");
 const clusterInventoryRoutes = require("./routes/clusterInventoryRoutes");
 const clusterTransactionRoutes = require("./routes/clusterTransactionRoutes");
+const clusterCultivateRoutes = require("./routes/clusterCultivate.routes");
 // ---------- Core Config ----------
 const NODE_ENV = process.env.NODE_ENV || "development";
 const FRONTEND_URL = process.env.FRONTEND_URL || process.env.FRONTEND2_URL;
@@ -159,12 +160,9 @@ app.use("/api/farm", requireAuth, farmRoutes);
 app.use("/api/clusters", requireAuth, clusterRoutes);
 app.use("/api/clusters-products", requireAuth, clusterProductRoutes);
 app.use("/api/clusters-second-products", requireAuth, clusterSecondRoutes);
+app.use("/api/clusters-cultivate", requireAuth, clusterCultivateRoutes);
 
-app.use(
-  "/api/clusters-assign-products",
-  requireAuth,
-  clusterProductAssignRoutes
-);
+app.use("/api/clusters-assign-products", requireAuth);
 
 app.use("/api/vendors", requireAuth, vendorRoutes);
 app.use("/api/vendor-bank-details", requireAuth, vendorBackend);

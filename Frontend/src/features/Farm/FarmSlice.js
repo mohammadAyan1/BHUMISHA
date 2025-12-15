@@ -7,6 +7,19 @@ export const fetchFarms = createAsyncThunk("farms/fetchFarms", async () => {
   const res = await farmAPI.getAll();
   return res.data;
 });
+
+export const fetchFarmDetailByFarmerId = createAsyncThunk(
+  "farms/fetchFarmDetailByFarmerId",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await farmAPI.getFarmByFarmerId(id);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 // addFarm
 export const addFarm = createAsyncThunk(
   "farms/addFarm",

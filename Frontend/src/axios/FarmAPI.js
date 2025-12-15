@@ -4,6 +4,9 @@ import { api } from "./axios";
 const farmApi = {
   create: (data) => api.post("/farm", data),
   getAll: () => api.get("/farm"),
+  getFarmByFarmerId: (id) =>
+    api.get(`/farm/farmerId/${id}`, { params: { id } }),
+
   update: (id, data) => api.put(`/farm/${id}`, data),
   remove: (id) => api.delete(`/farm/${id}`),
   updateStatus: (id, status) => api.patch(`/farm/${id}/status`, { status }),

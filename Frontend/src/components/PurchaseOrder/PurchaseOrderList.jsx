@@ -36,6 +36,8 @@ const PurchaseOrderList = ({ onEdit }) => {
     (s) => s.products || { list: [] }
   );
 
+  console.log(list);
+
   const [selectedPO, setSelectedPO] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -287,7 +289,7 @@ const PurchaseOrderList = ({ onEdit }) => {
                       </button>
 
                       {/* ✏️ Pencil (Edit) */}
-                      <button
+                      {/* <button
                         onClick={() => onEdit && onEdit(po)}
                         title="Edit"
                         aria-label="Edit"
@@ -304,7 +306,7 @@ const PurchaseOrderList = ({ onEdit }) => {
                         onMouseLeave={(e) => (e.target.style.color = "#d97706")}
                       >
                         ✏️
-                      </button>
+                      </button> */}
 
                       {/* 🗑️ Trash (Delete) */}
                       <button
@@ -377,12 +379,12 @@ const PurchaseOrderList = ({ onEdit }) => {
                 PO Details — {selectedPO.po_no || selectedPO.id}
               </h4>
               <div className="flex items-center gap-2 no-print">
-                <button
+                {/* <button
                   className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 active:scale-95"
                   onClick={() => window.print()}
                 >
                   Print
-                </button>
+                </button> */}
                 <button
                   type="button"
                   onClick={() => {
@@ -475,6 +477,7 @@ const PurchaseOrderList = ({ onEdit }) => {
                       <th className="border p-1 text-right">Disc Amt</th>
                       <th className="border p-1 text-right">GST%</th>
                       <th className="border p-1 text-right">GST Amt</th>
+                      <th className="border p-1 text-right">Unit</th>
                       <th className="border p-1 text-right">Final</th>
                     </tr>
                   </thead>
@@ -515,8 +518,12 @@ const PurchaseOrderList = ({ onEdit }) => {
                             <td className="border p-1 text-right">
                               {fx(it.gst_percent ?? 0, 2)}
                             </td>
+
                             <td className="border p-1 text-right">
                               {fx(it.gst_amount ?? 0, 2)}
+                            </td>
+                            <td className="border p-1 text-right">
+                              {it?.unit}
                             </td>
                             <td className="border p-1 text-right">
                               {fx(it.final_amount ?? it.total ?? 0, 2)}

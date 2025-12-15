@@ -7,6 +7,15 @@ clusterInventoryRoutes.post(
   "/",
   clusterInventoryController.createClusterInventory
 );
+clusterInventoryRoutes.get(
+  "/bypurchases",
+  clusterInventoryController.getClusterProductByPurchases
+);
+clusterInventoryRoutes.get(
+  "/:id",
+  clusterInventoryController.getClusterInventoryByClusterId
+);
+
 // router.put("/:id", clusterInventoryController.updateClusterInventory);
 // router.delete("/:id", clusterProductsController.deleteClusterInventory);
 

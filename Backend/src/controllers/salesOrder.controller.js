@@ -8,24 +8,112 @@ const toNum = (v, d = 0) => {
 };
 
 // calc same as PO (percent-per-qty of rate)
-const calcItem = (it) => {
-  const qty = toNum(it.qty);
-  const rate = toNum(it.rate);
-  const amount = qty * rate;
+// const calcItem = (it) => {
+//   const qty = toNum(it.qty);
+//   const rate = toNum(it.rate);
+//   const amount = qty * rate;
 
-  const discRatePerUnit = (rate * toNum(it.discount_per_qty)) / 100;
-  const discTotal = discRatePerUnit * qty;
+//   const discRatePerUnit = (rate * toNum(it.discount_per_qty)) / 100;
+//   const discTotal = discRatePerUnit * qty;
 
-  const taxable = amount - discTotal;
-  const gst_amount = (taxable * toNum(it.gst_percent)) / 100;
-  const final_amount = taxable + gst_amount;
+//   const taxable = amount - discTotal;
+//   const gst_amount = (taxable * toNum(it.gst_percent)) / 100;
+//   const final_amount = taxable + gst_amount;
+
+//   return {
+//     amount: Number(amount.toFixed(2)),
+//     discount_rate: Number(discRatePerUnit.toFixed(2)),
+//     discount_total: Number(discTotal.toFixed(2)),
+//     gst_amount: Number(gst_amount.toFixed(2)),
+//     final_amount: Number(final_amount.toFixed(2)),
+//   };
+// };
+
+// Helper function to convert quantity based on unit
+const convertQuantityToBaseUnit = (quantity, unit) => {
+  const qty = Number(quantity) || 0;
+  switch (unit?.toLowerCase()) {
+    case "ton":
+      return qty * 1000; // Convert tons to KG
+    case "quantal":
+      return qty * 100; // Convert quantal to KG
+    case "kg":
+      return qty; // Already in KG
+    case "gram":
+      return qty / 1000; // Convert grams to KG
+    case "pcs":
+      return qty; // For pieces, assume 1 piece = 1 KG
+    default:
+      return qty; // Default to KG
+  }
+};
+
+// Helper function to get unit conversion factor
+const getUnitConversionFactor = (unit) => {
+  switch (unit?.toLowerCase()) {
+    case "ton":
+      return 1000; // 1 ton = 1000 KG
+    case "quantal":
+      return 100; // 1 quantal = 100 KG
+    case "kg":
+      return 1; // Base unit
+    case "gram":
+      return 0.001; // 1 gram = 0.001 KG
+    case "pcs":
+      return 1; // 1 piece = 1 KG
+    default:
+      return 1;
+  }
+};
+
+// Updated calcItem function
+const calcItem = (item) => {
+  const qty = Number(item?.qty || 0);
+  const rate = Number(item?.rate || 0); // This should be rate per selected unit
+  const discountPerQty = Number(item?.discount_per_qty || 0);
+  const gstPercent = Number(item?.gst_percent || 0);
+  const unit = item?.unit || "kg";
+
+  // Convert quantity to KG based on unit
+  let qtyInKg;
+  switch (unit.toLowerCase()) {
+    case "ton":
+      qtyInKg = qty * 1000;
+      break;
+    case "quantal":
+      qtyInKg = qty * 100;
+      break;
+    case "kg":
+      qtyInKg = qty;
+      break;
+    case "gram":
+      qtyInKg = qty / 1000;
+      break;
+    default:
+      qtyInKg = qty; // Assume kg if unknown
+  }
+
+  // IMPORTANT: The rate should be per selected unit, not per kg
+  // So we need to calculate the total amount based on qty and rate
+  const amount = qtyInKg * rate; // This is correct: qty * rate per selected unit
+
+  // Convert discount to appropriate unit if needed
+  // Assuming discount_per_qty is a percentage, not unit-specific
+  const discountTotal = (amount * discountPerQty) / 100;
+
+  const taxableAmount = Math.max(amount - discountTotal, 0);
+  const gstAmount = (taxableAmount * gstPercent) / 100;
+  const finalAmount = taxableAmount + gstAmount;
 
   return {
     amount: Number(amount.toFixed(2)),
-    discount_rate: Number(discRatePerUnit.toFixed(2)),
-    discount_total: Number(discTotal.toFixed(2)),
-    gst_amount: Number(gst_amount.toFixed(2)),
-    final_amount: Number(final_amount.toFixed(2)),
+    discount_total: Number(discountTotal.toFixed(2)),
+    taxable_amount: Number(taxableAmount.toFixed(2)),
+    gst_amount: Number(gstAmount.toFixed(2)),
+    final_amount: Number(finalAmount.toFixed(2)),
+    qty_in_kg: Number(qtyInKg.toFixed(3)),
+    rate_per_kg: unit === "kg" ? rate : rate / (qtyInKg / qty), // Rate per kg
+    unit: unit,
   };
 };
 
@@ -51,6 +139,8 @@ const salesOrderController = {
         status,
       } = req.body;
 
+      console.log("this is the bodyd data", req?.body);
+
       if (!party_type || !party_id)
         return res
           .status(400)
@@ -62,9 +152,11 @@ const salesOrderController = {
       let totalAmount = 0,
         totalGST = 0,
         finalAmount = 0;
+
       const computed = items.map((it) => {
         const c = calcItem(it);
-        totalAmount += c.amount - c.discount_total;
+        console.log(c);
+        totalAmount += c.amount;
         totalGST += c.gst_amount;
         finalAmount += c.final_amount;
         return { raw: it, calc: c };
@@ -109,21 +201,51 @@ const salesOrderController = {
       }
       const sales_order_id = headerResult.insertId;
 
+      // const createdItems = [];
+      // for (const { raw } of computed) {
+      //   // Generated columns DB me auto compute honge
+      //   const data = {
+      //     sales_order_id,
+      //     product_id: Number(raw.product_id),
+      //     hsn_code: raw.hsn_code || "",
+      //     qty: Number(raw.qty || 0),
+      //     rate: Number(raw.rate || 0),
+      //     discount_per_qty: Number(raw.discount_per_qty || 0),
+      //     gst_percent: Number(raw.gst_percent || 0),
+      //     status: raw.status || "Active",
+      //   };
+      //   const itemRes = await SalesOrderItem.create(data);
+      //   createdItems.push({ id: itemRes.insertId, ...data });
+      // }
+
+      // Create sales order items with all calculated fields
       const createdItems = [];
-      for (const { raw } of computed) {
-        // Generated columns DB me auto compute honge
+      for (const { raw, calc } of computed) {
         const data = {
           sales_order_id,
           product_id: Number(raw.product_id),
           hsn_code: raw.hsn_code || "",
           qty: Number(raw.qty || 0),
-          rate: Number(raw.rate || 0),
+          rate: Number(raw.rate || 0), // Rate per unit (ton/kg/etc)
+          unit: raw.unit || "kg", // Store the unit
+          amount: calc.amount,
           discount_per_qty: Number(raw.discount_per_qty || 0),
+          discount_total: calc.discount_total,
+          discount_rate: calc.discount_total, // This might need adjustment based on your logic
           gst_percent: Number(raw.gst_percent || 0),
+          gst_amount: calc.gst_amount,
+          final_amount: calc.final_amount,
           status: raw.status || "Active",
+          buyer_type: buyer_type?.toLowerCase() || "retailer", // Store buyer type
         };
+
         const itemRes = await SalesOrderItem.create(data);
-        createdItems.push({ id: itemRes.insertId, ...data });
+        createdItems.push({
+          id: itemRes.insertId,
+          ...data,
+          qty_in_kg: calc.qty_in_kg, // Store quantity in KG for reference
+          rate_per_kg: calc.rate_per_kg, // Store rate per KG for reference
+        });
       }
 
       return res.status(201).json({

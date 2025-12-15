@@ -9,6 +9,7 @@ const farmController = {
       ff.size,
       ff.farm_type,
       ff.farmer_id,
+      ff.district AS farm_district,
 
       f.name,
       f.father_name,
@@ -35,18 +36,39 @@ const farmController = {
     });
   },
 
+  getAllFarmSizeByFarmerId: (req, res) => {
+    const { id } = req.query;
+
+    const sql = `
+    SELECT 
+      *
+    FROM farmer_farm 
+    WHERE farmer_id = ?
+  `;
+
+    pool.query(sql, [id], (err, results) => {
+      if (err) {
+        console.error("Error fetching farms:", err);
+        return res.status(500).json({ success: false, error: err.message });
+      }
+
+      return res.json({ success: true, data: results });
+    });
+  },
+
   createFarm: (req, res) => {
-    const { farmerId, location, size, type, state, village } = req.body;
+    const { farmerId, location, size, type, state, village, district } =
+      req.body;
 
     console.log(req.body);
 
     const sql = `
-      INSERT INTO farmer_farm (farmer_id, location, size, farm_type,state,city)
-      VALUES (?, ?, ?, ?,?,?)
+      INSERT INTO farmer_farm (farmer_id, location, size, farm_type,state,city,district)
+      VALUES (?, ?, ?, ?,?,?,?)
     `;
     pool.query(
       sql,
-      [farmerId, location, size, type, state, village],
+      [farmerId, location, size, type, state, village, district],
       (err, results) => {
         if (err) {
           console.error("Error creating farm:", err);

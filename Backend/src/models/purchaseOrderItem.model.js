@@ -22,6 +22,8 @@ const q = (sql, params = []) =>
 const PurchaseOrderItem = {
   // Create single PO item
   create: async (data) => {
+    console.log(data, "this data for purchase order item");
+
     const poId = toNum(data.purchase_order_id, NaN);
     const productId = toNum(data.product_id, NaN);
     if (!Number.isInteger(poId))
@@ -30,10 +32,29 @@ const PurchaseOrderItem = {
       throw new Error("product_id must be a valid integer");
 
     // REMOVE generated columns: amount, discount_rate, discount_total, gst_amount, final_amount
+    //   const sql = `
+    //   INSERT INTO purchase_order_items
+    //   (purchase_order_id, product_id, hsn_code, qty, rate, discount_per_qty, gst_percent, status,unit)
+    //   VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)
+    // `;
+    //   const values = [
+    //     poId,
+    //     productId,
+    //     data.hsn_code || "",
+    //     toNum(data.qty),
+    //     toNum(data.rate),
+    //     toNum(data.discount_per_qty),
+    //     toNum(data.gst_percent),
+    //     data.status || "Active",
+    //     data?.unit || "kg",
+    //   ];
+
     const sql = `
     INSERT INTO purchase_order_items
-    (purchase_order_id, product_id, hsn_code, qty, rate, discount_per_qty, gst_percent, status,unit)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)
+    (purchase_order_id, product_id, hsn_code, qty, rate, 
+     amount, discount_per_qty, discount_rate, discount_total, 
+     gst_percent, gst_amount, final_amount, status, unit)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
     const values = [
       poId,
@@ -41,8 +62,13 @@ const PurchaseOrderItem = {
       data.hsn_code || "",
       toNum(data.qty),
       toNum(data.rate),
-      toNum(data.discount_per_qty),
-      toNum(data.gst_percent),
+      toNum(data.amount || 0), // Calculated amount
+      toNum(data.discount_per_qty || 0), // Discount percentage
+      toNum(data.discount_rate || 0), // Discount rate (calculated)
+      toNum(data.discount_total || 0), // Total discount (calculated)
+      toNum(data.gst_percent || 0),
+      toNum(data.gst_amount || 0), // GST amount (calculated)
+      toNum(data.final_amount || 0), // Final amount (calculated)
       data.status || "Active",
       data?.unit || "kg",
     ];

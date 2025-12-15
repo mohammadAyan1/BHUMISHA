@@ -12,7 +12,7 @@ export default function Purchases() {
   };
 
   return (
-    <div className=" bg-gray-100 min-h-screen">
+    <div className=" bg-gray-100 min-h-screen overflow-y-auto overflow-x-auto">
       <div className="flex items-center justify-between mb-6 bg-white p-3 shadow-md">
         <h1 className="text-2xl font-bold">Manage Purchases</h1>
 
@@ -66,12 +66,12 @@ export default function Purchases() {
       </div>
 
       {/* Purchase Form */}
-      <div className="mb-10">
+      <div className="mb-10 overflow-auto">
         <PurchaseForm onSaved={handlePurchaseSaved} />
       </div>
 
       {/* Purchase List */}
-      <div>
+      <div className="overflow-auto">
         <PurchaseList reload={reloadFlag} />
       </div>
     </div>

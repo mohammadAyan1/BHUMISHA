@@ -14,6 +14,7 @@ const ClusterCreate = () => {
     state: "",
     village: "",
     manager: "",
+    district: "",
   });
 
   const dispatch = useDispatch();
@@ -60,8 +61,15 @@ const ClusterCreate = () => {
 
   // Add Row
   const addRow = () => {
-    const { companyId, companyCode, location, manager, village, state } =
-      formData;
+    const {
+      companyId,
+      companyCode,
+      location,
+      manager,
+      village,
+      state,
+      district,
+    } = formData;
 
     if (!companyId || !location || !manager) {
       alert("Please fill all fields.");
@@ -78,6 +86,7 @@ const ClusterCreate = () => {
         manager,
         village,
         state,
+        district,
       },
     ]);
 
@@ -88,6 +97,7 @@ const ClusterCreate = () => {
       manager: "",
       village: "",
       state: "",
+      district: "",
     });
   };
 
@@ -106,6 +116,7 @@ const ClusterCreate = () => {
           manager: row.manager,
           state: row.state,
           village: row.village,
+          district: row.district,
         })
       );
     });
@@ -161,6 +172,18 @@ const ClusterCreate = () => {
             placeholder="State"
             name="state"
             value={formData.state}
+            onChange={handleInputChange}
+            className="w-full border p-2 rounded-lg"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block font-semibold mb-1">District</label>
+          <input
+            type="text"
+            placeholder="District"
+            name="district"
+            value={formData.district}
             onChange={handleInputChange}
             className="w-full border p-2 rounded-lg"
           />
@@ -256,19 +279,21 @@ const ClusterCreate = () => {
                 <th className="p-3 border">Manager</th>
                 <th className="p-3 border">Contact No</th>
                 <th className="p-3 border">Address</th>
+                <th className="p-3 border">District</th>
               </tr>
             </thead>
 
             <tbody>
-              {clusters.map((c) => (
+              {clusters.map((c, i) => (
                 <tr key={c.id} className="hover:bg-gray-50">
-                  <td className="p-3 border">{c.id}</td>
+                  <td className="p-3 border">{i + 1}</td>
                   <td className="p-3 border">{c.company_code}</td>
                   <td className="p-3 border">{c.company_name}</td>
                   <td className="p-3 border">{c.cluster_location}</td>
                   <td className="p-3 border">{c.cluster_manager}</td>
                   <td className="p-3 border">{c.company_contact_no}</td>
                   <td className="p-3 border">{c.company_address}</td>
+                  <td className="p-3 border">{c.district}</td>
                 </tr>
               ))}
             </tbody>

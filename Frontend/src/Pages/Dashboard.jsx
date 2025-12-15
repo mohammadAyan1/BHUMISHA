@@ -41,7 +41,7 @@ export default function Dashboard() {
   const [purchaseTotalAmount, setPurchaseTotalAmount] = useState(0);
   const [salesInvoiceCount, setSalesInvoiceCount] = useState(0);
   const [salesTotalAmount, setSalesTotalAmount] = useState(0);
-  const [salesTotalProfit, setSalesTotalProfit] = useState(0);
+  // const [salesTotalProfit, setSalesTotalProfit] = useState(0);
   const [revenueData, setRevenueData] = useState([]);
   const [vendorData, setVendorData] = useState([]);
   const [productCostRetailer, setProductCostRetailer] = useState([]);
@@ -200,7 +200,7 @@ export default function Dashboard() {
           const companies = res.data || [];
           let sCount = 0;
           let totalSalesAmount = 0;
-          let totalProfit = 0;
+          // let totalProfit = 0;
           const revenueBuckets = new Map();
           const now = new Date();
           const start = new Date(now.getFullYear(), now.getMonth() - 11, 1);
@@ -254,20 +254,20 @@ export default function Dashboard() {
               }
 
               // compute approximate profit: sum(saleValue - (purchase_rate * qty)) per item
-              for (const it of items) {
-                const saleValue =
-                  Number(it?.net_total ?? it?.total ?? it?.amount ?? 0) || 0;
-                const costPerUnit =
-                  Number(it?.purchase_rate ?? it?.cost_price ?? 0) || 0;
-                const qty = Number(it?.qty ?? it?.quantity ?? 0) || 0;
-                totalProfit += saleValue - costPerUnit * qty;
-              }
+              // for (const it of items) {
+              //   const saleValue =
+              //     Number(it?.net_total ?? it?.total ?? it?.amount ?? 0) || 0;
+              //   const costPerUnit =
+              //     Number(it?.purchase_rate ?? it?.cost_price ?? 0) || 0;
+              //   const qty = Number(it?.qty ?? it?.quantity ?? 0) || 0;
+              //   // totalProfit += saleValue - costPerUnit * qty;
+              // }
             }
           }
 
           setSalesInvoiceCount(sCount);
           setSalesTotalAmount(totalSalesAmount);
-          setSalesTotalProfit(totalProfit);
+          // setSalesTotalProfit(totalProfit);
           setRevenueData(Array.from(revenueBuckets.values()));
         } catch (err) {
           console.error("Error computing sales metrics", err);
@@ -341,7 +341,9 @@ export default function Dashboard() {
             <span className="text-4xl leading-none">🧾</span>
             <div>
               <p className="text-sm opacity-80">Purchase Invoices</p>
-              <h3 className="text-2xl font-bold">{purchaseInvoiceCount}</h3>
+              <h3 className="text-2xl font-bold">
+                {purchaseInvoiceCount || 0}
+              </h3>
             </div>
           </div>
         </Link>
@@ -367,141 +369,128 @@ export default function Dashboard() {
             <span className="text-4xl leading-none">🧾</span>
             <div>
               <p className="text-sm opacity-80">Sales Invoices</p>
-              <h3 className="text-2xl font-bold">{salesInvoiceCount}</h3>
+              <h3 className="text-2xl font-bold">
+                {salesInvoiceCount.toFixed(3)}
+              </h3>
             </div>
           </div>
         </Link>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 shadow-lg text-white flex items-center gap-4">
-          <span className="text-4xl leading-none">🏢</span>
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-green-500 to-blue-600 shadow-lg text-white flex items-center gap-4">
+          {/* <span className="text-4xl leading-none">🏢</span> */}
           <div>
             <p className="text-sm opacity-80">Vendors</p>
-            <h3 className="text-2xl font-bold">{totalVendors}</h3>
-          </div>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 shadow-lg text-white flex items-center gap-4">
-          <div className="flex flex-col gap-2">
-            <span className="text-2xl p-1 rounded text-purple-900 font-bold">
-              Retailer
-            </span>
-            <span className="text-4xl leading-none">🏢</span>
-          </div>
-          <div>
-            <p className="text-sm opacity-80">Total Product Sales Cost</p>
             <h3 className="text-2xl font-bold">
-              {productCostRetailer?.totalSales}
+              {(totalVendors || 0).toFixed(3)}
             </h3>
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 shadow-lg text-white flex items-center gap-4">
-          <div className="flex flex-col gap-2">
-            <span className="text-2xl p-1 rounded text-purple-900 font-bold">
-              Retailer
-            </span>
-            <span className="text-4xl leading-none">🏢</span>
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-pink-500 to-yellow-600 shadow-lg text-white flex items-center gap-4">
+          {/* <span className="text-4xl leading-none">🏢</span> */}
+          <div>
+            <p className="text-sm opacity-80">
+              Total Retailer Product Sales Cost
+            </p>
+            <h3 className="text-2xl font-bold">
+              {(productCostRetailer?.totalSales || 0).toFixed(3)}
+            </h3>
           </div>
+        </div>
+
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-violet-500 to-amber-600 shadow-lg text-white flex items-center gap-4">
           <div>
             <p className="text-sm opacity-80">Total Product Cost</p>
             <h3 className="text-2xl font-bold">
-              {productCostRetailer?.totalCost}
+              {(productCostRetailer?.totalCost || 0).toFixed(2)}
             </h3>
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 shadow-lg text-white flex items-center gap-4">
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-sky-500 to-teal-600 shadow-lg text-white flex items-center gap-4">
           <div className="flex flex-col gap-2">
-            <span className="text-2xl p-1 rounded text-purple-900 font-bold">
-              Retailer
-            </span>
-            <span className="text-4xl leading-none">🏢</span>
+            {/* <span className="text-4xl leading-none">🏢</span> */}
           </div>
           <div>
             <p>Product Sales Profit</p>
             <h3 className="text-2xl font-bold">
-              {Number(productCostRetailer?.totalSales) -
-                Number(productCostRetailer?.totalCost)}
+              {(
+                Number(productCostRetailer?.totalSales || 0) -
+                  Number(productCostRetailer?.totalCost || 0) || 0
+              ).toFixed(3)}
             </h3>
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 shadow-lg text-white flex items-center gap-4">
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-rose-500 to-cyan-600 shadow-lg text-white flex items-center gap-4">
           <div className="flex flex-col gap-2">
-            <span className="text-2xl p-1 rounded text-purple-900 font-bold">
-              Whole Saler
-            </span>
-            <span className="text-4xl leading-none">🏢</span>
+            {/* <span className="text-4xl leading-none">🏢</span> */}
           </div>
           <div>
             <p className="text-sm opacity-80">Total Product Sales Cost</p>
             <h3 className="text-2xl font-bold">
-              {productCostWholeSaler?.totalSales}
+              {(productCostWholeSaler?.totalSales || 0).toFixed(3)}
             </h3>
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 shadow-lg text-white flex items-center gap-4">
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-fuchsia-600 shadow-lg text-white flex items-center gap-4">
           <div className="flex flex-col gap-2">
-            <span className="text-2xl p-1 rounded text-purple-900 font-bold">
-              Whole Saler
-            </span>
-            <span className="text-4xl leading-none">🏢</span>
+            {/* <span className="text-4xl leading-none">🏢</span> */}
           </div>
           <div>
             <p className="text-sm opacity-80">Total Product Cost</p>
             <h3 className="text-2xl font-bold">
-              {productCostWholeSaler?.totalCost}
+              {(productCostWholeSaler?.totalCost || 0).toFixed(3)}
             </h3>
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 shadow-lg text-white flex items-center gap-4">
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-indigo-500 to-stone-600 shadow-lg text-white flex items-center gap-4">
           <div className="flex flex-col gap-2">
-            <span className="text-2xl p-1 rounded text-purple-900 font-bold">
-              Whole Saler
-            </span>
-            <span className="text-4xl leading-none">🏢</span>
+            {/* <span className="text-4xl leading-none">🏢</span> */}
           </div>
           <div>
             <p>Product Sales Profit</p>
             <h3 className="text-2xl font-bold">
-              {Number(productCostWholeSaler?.totalSales) -
-                Number(productCostWholeSaler?.totalCost)}
+              {(
+                Number(productCostWholeSaler?.totalSales || 0) -
+                  Number(productCostWholeSaler?.totalCost || 0) || 0
+              ).toFixed(3)}
             </h3>
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 shadow-lg text-white flex items-center gap-4">
-          <span className="text-4xl leading-none">🏢</span>
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-slate-500 to-lime-600 shadow-lg text-white flex items-center gap-4">
+          {/* <span className="text-4xl leading-none">🏢</span> */}
           <div>
             <p className="text-sm opacity-80">Total Sales Product GST Amount</p>
             <h3 className="text-2xl font-bold">
-              {gstAmount?.totalGstFromTable}
+              {(gstAmount?.totalGstFromTable || 0).toFixed(3)}
             </h3>
           </div>
         </div>
 
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 shadow-lg text-white flex items-center gap-4">
-          <span className="text-4xl leading-none">🏢</span>
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-zinc-500 to-neutral-600 shadow-lg text-white flex items-center gap-4">
+          {/* <span className="text-4xl leading-none">🏢</span> */}
           <div>
             <p className="text-sm opacity-80">
               Total Purchase Product GST Amount
             </p>
             <h3 className="text-2xl font-bold">
-              {gstAmount?.totalGstFromProducts}
+              {(gstAmount?.totalGstFromProducts || 0).toFixed(3)}
             </h3>
           </div>
         </div>
 
         <div className="p-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 shadow-lg text-white flex items-center gap-4">
-          <span className="text-4xl leading-none">🏢</span>
+          {/* <span className="text-4xl leading-none">🏢</span> */}
           <div>
             <p className="text-sm opacity-80">Total GST Profit</p>
             <h3 className="text-2xl font-bold">
               {(
-                Number(gstAmount?.totalGstFromTable) -
-                Number(gstAmount?.totalGstFromProducts)
+                Number(gstAmount?.totalGstFromTable || 0) -
+                Number(gstAmount?.totalGstFromProducts || 0)
               ).toFixed(2)}
             </h3>
           </div>
@@ -553,62 +542,6 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
       </div>
-
-      {/* Recent Transactions */}
-      {/* <div className="bg-[var(--bg)] shadow rounded-2xl p-6">
-        <h3 className="text-lg font-semibold text-[var(--text-color)] mb-4">
-          Recent Transactions
-        </h3>
-        <table className="w-full text-sm text-left border-collapse">
-          <thead className="bg-[var(--secondary-bg)] text-[var(--accent)]">
-            <tr>
-              <th className="px-4 py-2">Invoice ID</th>
-              <th className="px-4 py-2">Customer</th>
-              <th className="px-4 py-2">Amount</th>
-              <th className="px-4 py-2">Status</th>
-              <th className="px-4 py-2">Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-b">
-              <td className="px-4 py-2">#INV-1001</td>
-              <td className="px-4 py-2">John Doe</td>
-              <td className="px-4 py-2">₹320</td>
-              <td className="px-4 py-2">
-                <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded text-xs">
-                  <span>✅</span>
-                  <span>Paid</span>
-                </span>
-              </td>
-              <td className="px-4 py-2">24 Aug 2025</td>
-            </tr>
-            <tr className="border-b">
-              <td className="px-4 py-2">#INV-1002</td>
-              <td className="px-4 py-2">Jane Smith</td>
-              <td className="px-4 py-2">₹150</td>
-              <td className="px-4 py-2">
-                <span className="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">
-                  <span>⏳</span>
-                  <span>Pending</span>
-                </span>
-              </td>
-              <td className="px-4 py-2">23 Aug 2025</td>
-            </tr>
-            <tr>
-              <td className="px-4 py-2">#INV-1003</td>
-              <td className="px-4 py-2">Apex Supplies</td>
-              <td className="px-4 py-2">₹780</td>
-              <td className="px-4 py-2">
-                <span className="inline-flex items-center gap-1 bg-red-100 text-red-700 px-2 py-1 rounded text-xs">
-                  <span>⚠️</span>
-                  <span>Overdue</span>
-                </span>
-              </td>
-              <td className="px-4 py-2">22 Aug 2025</td>
-            </tr>
-          </tbody>
-        </table>
-      </div> */}
     </div>
   );
 }

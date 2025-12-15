@@ -8,9 +8,31 @@ const toNum = (v, d = 0) => {
   return Number.isFinite(n) ? n : d;
 };
 
+// Helper function to debug database operations
+const debugLog = (title, data) => {
+  console.log(`\n=== ${title} ===`);
+  console.log(JSON.stringify(data, null, 2));
+  console.log("==================\n");
+};
+
 // Per-item calc (percent-per-qty)
 const calculateItem = (item) => {
-  const qty = toNum(item.qty);
+  console.log(item, "this is the item");
+
+  let qty;
+  switch (item?.unit) {
+    case "ton":
+      qty = toNum(item.qty) * 1000;
+      break;
+    case "quantal":
+      qty = toNum(item.qty) * 100;
+      break;
+    case "gram":
+      qty = toNum(item.qty) / 1000;
+      break;
+    default:
+      qty = toNum(item.qty);
+  }
   const rate = toNum(item.rate);
   const amount = qty * rate;
 
@@ -53,6 +75,7 @@ const purchaseOrderController = {
       } = req.body;
 
       console.log(unit, "thisis the unit");
+      console.log(items);
 
       // Validate
       if (!Array.isArray(items) || items.length === 0) {
@@ -119,22 +142,60 @@ const purchaseOrderController = {
       const purchase_order_id = headerResult.insertId;
 
       // Items
+      // const createdItems = [];
+      // for (const { raw } of computedItems) {
+      //   console.log(raw, "this is the computed row items");
+
+      //   const itemData = {
+      //     purchase_order_id,
+      //     product_id: Number(raw.product_id),
+      //     hsn_code: raw.hsn_code || "",
+      //     qty: Number(raw.qty || 0),
+      //     rate: Number(raw.rate || 0),
+      //     discount_per_qty: Number(raw.discount_per_qty || 0),
+      //     gst_percent: Number(raw.gst_percent || 0),
+      //     status: raw.status || "Active",
+      //     unit: raw?.unit,
+      //   };
+
+      //   console.log(itemData, "this is purchase order item sending data");
+
+      //   const itemResult = await PurchaseOrderItem.create(itemData);
+      //   createdItems.push({ id: itemResult.insertId, ...itemData });
+      // }
+
+      // Items
       const createdItems = [];
-      for (const { raw } of computedItems) {
+      for (const { raw, calc } of computedItems) {
+        console.log(raw, "this is the computed row items");
+        console.log("Calculated values:", calc); // Debug log
+        debugLog("Computed Items", computedItems);
         const itemData = {
           purchase_order_id,
           product_id: Number(raw.product_id),
           hsn_code: raw.hsn_code || "",
           qty: Number(raw.qty || 0),
           rate: Number(raw.rate || 0),
+          amount: calc.amount, // Add calculated amount
           discount_per_qty: Number(raw.discount_per_qty || 0),
+          discount_rate: calc.discount_rate, // Add calculated discount rate
+          discount_total: calc.discount_total, // Add calculated discount total
           gst_percent: Number(raw.gst_percent || 0),
+          gst_amount: calc.gst_amount, // Add calculated GST amount
+          final_amount: calc.final_amount, // Add calculated final amount
           status: raw.status || "Active",
-          unit: raw?.unit,
+          unit: raw?.unit || "kg",
         };
+
+        console.log("Item data to insert:", itemData); // Debug log
+
+        debugLog("Item Data for Insert", itemData);
+
         const itemResult = await PurchaseOrderItem.create(itemData);
         createdItems.push({ id: itemResult.insertId, ...itemData });
       }
+
+      debugLog("Created Items in Database", createdItems);
 
       // Optional: party_name join
       let party_name = null;

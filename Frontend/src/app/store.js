@@ -12,6 +12,7 @@ import clusterProductsReducer from "../features/clusterProduct/clusterProducts";
 import secondClusterProdutsReducer from "../features/ClusterProducts/ClusterProducts";
 import clusterInvetoryReducer from "../features/ClusterInventory/ClusterInventory";
 import clusterTransactionReducer from "../features/ClusterTransaction/ClusterTransaction";
+import clusterCultivateReducer from "../features/clusterCultivate/ClusterCultivate";
 const store = configureStore({
   reducer: {
     vendors: vendorReducer,
@@ -27,6 +28,7 @@ const store = configureStore({
     secondClusterProducts: secondClusterProdutsReducer,
     clusterInventory: clusterInvetoryReducer,
     clusterTransaction: clusterTransactionReducer,
+    clusterCultivate: clusterCultivateReducer,
   },
 });
 

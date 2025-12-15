@@ -21,21 +21,50 @@ const q = (sql, params = []) =>
 
 const SalesOrderItem = {
   // INSERT only base fields; generated columns DB me auto-calc honge
+  // create: async (data) => {
+  //   const sql = `
+  //     INSERT INTO \`sales_order_items\`
+  //     (\`sales_order_id\`, \`product_id\`, \`hsn_code\`, \`qty\`, \`rate\`, \`discount_per_qty\`, \`gst_percent\`, \`status\`)
+  //     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  //   `;
+  //   const values = [
+  //     toNum(data.sales_order_id),
+  //     toNum(data.product_id),
+  //     data.hsn_code || "",
+  //     toNum(data.qty),
+  //     toNum(data.rate),
+  //     toNum(data.discount_per_qty),
+  //     toNum(data.gst_percent),
+  //     data.status || "Active",
+  //   ];
+  //   const [res] = await q(sql, values);
+  //   return res;
+  // },
+
   create: async (data) => {
     const sql = `
-      INSERT INTO \`sales_order_items\`
-      (\`sales_order_id\`, \`product_id\`, \`hsn_code\`, \`qty\`, \`rate\`, \`discount_per_qty\`, \`gst_percent\`, \`status\`)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+    INSERT INTO \`sales_order_items\`
+    (\`sales_order_id\`, \`product_id\`, \`hsn_code\`, \`qty\`, \`rate\`, \`unit\`,
+     \`amount\`, \`discount_per_qty\`, \`discount_total\`, \`gst_percent\`, \`gst_amount\`,
+     \`final_amount\`, \`discount_rate\`, \`status\`, \`buyer_type\`)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
     const values = [
       toNum(data.sales_order_id),
       toNum(data.product_id),
       data.hsn_code || "",
       toNum(data.qty),
-      toNum(data.rate),
-      toNum(data.discount_per_qty),
-      toNum(data.gst_percent),
+      toNum(data.rate), // Rate per selected unit
+      data.unit || "kg",
+      toNum(data.amount || 0),
+      toNum(data.discount_per_qty || 0),
+      toNum(data.discount_total || 0),
+      toNum(data.gst_percent || 0),
+      toNum(data.gst_amount || 0),
+      toNum(data.final_amount || 0),
+      toNum(data.discount_rate || 0),
       data.status || "Active",
+      data.buyer_type || "retailer",
     ];
     const [res] = await q(sql, values);
     return res;

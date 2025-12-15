@@ -14,6 +14,34 @@ export const fetchClustersInventory = createAsyncThunk(
   }
 );
 
+// fetch cluster inventory by cluster id
+export const fetchClustersProductByPurchases = createAsyncThunk(
+  "clusters/fetchClustersProductByPurchases",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await ClusterInventoryApi.getClusterProductByPurchases();
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// fetch cluster inventory by cluster id
+export const fetchClustersInventoryByClusterId = createAsyncThunk(
+  "clusters/fetchAllClusterInventoryByClusterId",
+  async (id, { rejectWithValue }) => {
+    try {
+      console.log(id, "this is cluster id");
+
+      const res = await ClusterInventoryApi.getClusterInventoryByClusterId(id);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 // 🔹 Add
 export const addClusterInventory = createAsyncThunk(
   "clusters/addClusterInventory",

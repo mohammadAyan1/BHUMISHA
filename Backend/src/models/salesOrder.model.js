@@ -21,20 +21,23 @@ const q = (sql, params = []) =>
 
 const SalesOrder = {
   create: async (data) => {
-    const so_no = data.so_no || (await getNextSoNo());
+    console.log(data, "this is the data");
+
     const sql = `
-      INSERT INTO \`sales_orders\`
-      (\`so_no\`, \`party_type\`, \`party_id\`, \`buyer_type\`, \`date\`, \`bill_time\`, \`address\`, \`mobile_no\`, \`gst_no\`,
-       \`place_of_supply\`, \`terms_condition\`, \`other_amount\`, \`other_note\`, \`total_amount\`, \`gst_amount\`, \`final_amount\`, \`status\`)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+    INSERT INTO \`sales_orders\`
+    (\`so_no\`, \`party_type\`, \`party_id\`, \`buyer_type\`, \`date\`, 
+     \`bill_time\`, \`address\`, \`mobile_no\`, \`gst_no\`,
+     \`place_of_supply\`, \`terms_condition\`, \`other_amount\`, 
+     \`other_note\`, \`total_amount\`, \`gst_amount\`, \`final_amount\`, \`status\`)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
     const values = [
-      so_no,
+      data.so_no || "",
       data.party_type || "Customer",
       toNum(data.party_id),
       data.buyer_type || null,
-      data.date || null, // 'YYYY-MM-DD'
-      data.bill_time || null, // 'YYYY-MM-DD HH:MM:SS'
+      data.date || null,
+      data.bill_time || null,
       data.address || "",
       data.mobile_no || "",
       data.gst_no || "",
@@ -51,7 +54,6 @@ const SalesOrder = {
     return res;
   },
 
-  // Flattened raw rows for grouping on server
   getAllRaw: async () => {
     const sql = `
       SELECT

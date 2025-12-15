@@ -28,8 +28,7 @@ const clusterInvetoryController = {
       p.id AS product_id,
       p.name AS product_name,
       p.hsn_number AS product_hsn,
-      p.purchase_rate AS product_purchase_rate,
-      p.sale_rate AS product_sale_rate,
+      
       
       -- Cluster info
       c.id AS cluster_id,
@@ -55,6 +54,84 @@ const clusterInvetoryController = {
     });
   },
 
+  getClusterInventoryByClusterId: (req, res) => {
+    try {
+      const { id } = req.query;
+      console.log(id);
+
+      if (!id) {
+        return res.status(401).json({
+          message: "Please select cluster",
+          data: null,
+        });
+      }
+
+      const sql = `
+  SELECT 
+    ci.id,
+    ci.qty,
+    ci.purchase_rate,
+    ci.sale_rate,
+    ci.unit,
+    ci.entry_date,
+    ci.created_at,
+    ci.updated_at,
+    
+    -- Product info
+    p.id AS product_id,
+    p.name AS product_name,
+    p.hsn_number AS product_hsn,
+    
+    
+    -- Cluster info
+    c.id AS cluster_id,
+    c.cluster_location,
+    c.cluster_manager,
+    c.state AS cluster_state,
+    c.city AS cluster_city
+
+  FROM cluster_inventory ci
+  LEFT JOIN cluster_second_products p 
+    ON ci.cluster_product_id = p.id
+  LEFT JOIN company_clusters c
+    ON ci.cluster_id = c.id
+  WHERE ci.cluster_id = ?
+  ORDER BY ci.id DESC
+`;
+
+      pool.query(sql, [id], (err, result) => {
+        if (err) {
+          console.error("Error fetching cluster inventory by cluster Id:", err);
+          return res.status(500).json({ success: false, error: err.message });
+        }
+        res.json({ success: true, data: result });
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Server error while fetching cluster inventory by cluster id",
+        status: false,
+      });
+    }
+  },
+
+  getClusterProductByPurchases: (req, res) => {
+    try {
+      const sql = `SELECT * FROM cluster_second_products`;
+      pool.query(sql, (err, result) => {
+        if (err) {
+          console.error("Error fetching cluster inventory by cluster Id:", err);
+          return res.status(500).json({ success: false, error: err.message });
+        }
+        res.json({ success: true, data: result });
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Server error while fetching cluster inventory by cluster id",
+        status: false,
+      });
+    }
+  },
+
   createClusterInventory: (req, res) => {
     const { productId, clusterId, qty, purchase, sale, date, unit } = req.body;
 
@@ -63,6 +140,8 @@ const clusterInvetoryController = {
         .status(400)
         .json({ success: false, error: "Required fields missing" });
     }
+
+    const entryDate = date || new Date(); // <-- Auto current datetime
 
     // First, check if the product + cluster already exists
     const checkSql = `
@@ -95,11 +174,11 @@ const clusterInvetoryController = {
             purchase || existing.purchase_rate,
             sale || existing.sale_rate,
             unit,
-            date || existing.entry_date,
+            entryDate,
             productId,
             clusterId,
           ],
-          (err, result) => {
+          (err) => {
             if (err) {
               console.error("Error updating inventory:", err);
               return res
@@ -121,7 +200,7 @@ const clusterInvetoryController = {
       `;
         pool.query(
           insertSql,
-          [productId, clusterId, qty, purchase, sale, unit, date],
+          [productId, clusterId, qty, purchase, sale, unit, entryDate],
           (err, result) => {
             if (err) {
               console.error("Error creating inventory:", err);
