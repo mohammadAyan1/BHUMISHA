@@ -81,20 +81,35 @@ export default function Sidebar({
   // Hamburger for mobile close
   const Bars = () => <span aria-hidden="true">☰</span>;
 
+  // const handleNavClick = () => {
+  //   try {
+  //     if (typeof toggleSidebar === "function") toggleSidebar();
+  //   } catch (err) {
+  //     console.error("Error in handleNavClick:", err);
+  //   }
+  // };
+
   const handleNavClick = () => {
-    try {
-      if (typeof toggleSidebar === "function") toggleSidebar();
-    } catch (err) {
-      console.error("Error in handleNavClick:", err);
+    if (window.innerWidth < 768 && typeof toggleSidebar === "function") {
+      toggleSidebar();
     }
   };
 
   return (
+    // <aside
+    //   className={`fixed top-0 flex flex-col left-0 h-full bg-[var(--bg)] shadow-lg transition-all duration-300 z-50
+    //   ${collapsed ? "w-20" : "w-64"}
+    //   ${isOpen ? "translate-x-0" : "-translate-x-64"}
+    //   md:translate-x-0 overflow-auto`}
+    // >
+
     <aside
-      className={`fixed top-0 flex flex-col left-0 h-full bg-[var(--bg)] shadow-lg transition-all duration-300 z-50
-      ${collapsed ? "w-20" : "w-64"}
-      ${isOpen ? "translate-x-0" : "-translate-x-64"}
-      md:translate-x-0 overflow-auto`}
+      className={`fixed top-0 left-0 h-full bg-[var(--bg)] shadow-lg z-50
+  transition-transform duration-300
+  ${collapsed ? "w-20" : "w-64"}
+  ${isOpen ? "translate-x-0" : "-translate-x-full"}
+  md:${isOpen ? "translate-x-0" : "-translate-x-full"}
+  overflow-auto`}
     >
       {/* Sidebar Header */}
       <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-neutral-800">

@@ -60,6 +60,17 @@ function AppShell() {
 
   return (
     <div className="flex min-h-screen bg-[var(--secondary-bg)]">
+      {/* Open Sidebar Button (when closed) */}
+      {!isSidebarOpen && (
+        <button
+          onClick={toggleSidebar}
+          className="fixed top-4 left-4 z-50 p-2 rounded-md bg-[var(--accent)] text-white shadow-lg md:hidden"
+          aria-label="Open sidebar"
+        >
+          ☰
+        </button>
+      )}
+
       {/* Sidebar */}
       <Sidebar
         isOpen={isSidebarOpen}
@@ -69,15 +80,23 @@ function AppShell() {
       />
 
       {/* Main Content */}
-      <div
+      {/* <div
         className={`
           flex flex-col flex-1 transition-all duration-300
           md:${collapsed ? "ml-20" : "ml-64"}
           ml-0
         `}
+      > */}
+
+      <div
+        className={`
+    flex flex-col flex-1 transition-all duration-300
+    ${isSidebarOpen ? (collapsed ? "md:ml-20" : "md:ml-64") : "md:ml-0"}
+    ml-0
+  `}
       >
         <Navbar toggleSidebar={toggleSidebar} />
-        <main className="flex-1 p-2 overflow-y-auto">
+        <main className="flex-1 p-2 overflow-y-auto overflow-x-auto">
           <Outlet key={outletKey} />
         </main>
       </div>

@@ -508,345 +508,357 @@ const PurchaseOrderForm = ({ purchaseOrder, onSubmitted }) => {
 
   // UI designed like PurchaseForm
   return (
-    <form onSubmit={onSubmit} className="p-3">
-      {/* Header */}
-      <div className="grid grid-cols-6 gap-3 border p-3 overflow-auto rounded">
-        <div className="flex flex-col">
-          <label className="text-xs">Bill Date</label>
-          <input
-            type="date"
-            className="border rounded p-1"
-            name="date"
-            value={header.date}
-            onChange={onHeader}
-          />
-        </div>
+    <div className="w-full overflow-x-auto">
+      <form onSubmit={onSubmit} className="p-3 min-w-[1400px]">
+        {/* Header */}
+        <div className="grid grid-cols-6 gap-3 border p-3 overflow-auto rounded">
+          <div className="flex flex-col">
+            <label className="text-xs">Bill Date</label>
+            <input
+              type="date"
+              className="border rounded p-1"
+              name="date"
+              value={header.date}
+              onChange={onHeader}
+            />
+          </div>
 
-        <div className="flex flex-col">
-          <label className="text-xs">Party Type</label>
-          <select
-            className="border rounded p-1"
-            value={header.party_type}
-            onChange={onPartyTypeChange}
-          >
-            <option value="vendor">Vendor</option>
-            <option value="farmer">Farmer</option>
-          </select>
-        </div>
+          <div className="flex flex-col">
+            <label className="text-xs">Party Type</label>
+            <select
+              className="border rounded p-1"
+              value={header.party_type}
+              onChange={onPartyTypeChange}
+            >
+              <option value="vendor">Vendor</option>
+              <option value="farmer">Farmer</option>
+            </select>
+          </div>
 
-        <div className="flex flex-col">
-          <label className="text-xs">
-            {header.party_type === "vendor" ? "Firm/Vendor" : "Farmer"}
-          </label>
-          <select
-            className="border rounded p-1"
-            name={header.party_type === "vendor" ? "vendor_id" : "farmer_id"}
-            value={
-              header.party_type === "vendor"
-                ? header.vendor_id
-                : header.farmer_id
-            }
-            onChange={onPartyChange}
-          >
-            <option value="">Select</option>
-            {(header.party_type === "vendor" ? vendors : farmers).map((p) => (
-              <option key={String(p.id ?? p._id)} value={String(p.id ?? p._id)}>
-                {p.vendor_name || p.name || p.firm_name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex flex-col">
-          <label className="text-xs">ADDRESS</label>
-          <input
-            className="border rounded p-1"
-            name="address"
-            value={header.address}
-            onChange={onHeader}
-          />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-xs">MOBILE NO</label>
-          <input
-            className="border rounded p-1"
-            name="mobile_no"
-            minLength={10}
-            maxLength={10}
-            value={header.mobile_no}
-            onChange={onHeader}
-          />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-xs">GST No</label>
-          <input
-            className="border rounded p-1"
-            name="gst_no"
-            value={header.gst_no}
-            onChange={onHeader}
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <label className="text-xs">PO No.</label>
-          <input
-            className="border rounded p-1"
-            name="po_no"
-            value={header.po_no}
-            onChange={onHeader}
-            placeholder="Enter PO No."
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <label className="text-xs">Place of Supply</label>
-          <input
-            className="border rounded p-1"
-            name="place_of_supply"
-            value={header.place_of_supply}
-            onChange={onHeader}
-            placeholder="e.g., Maharashtra"
-          />
-        </div>
-
-        <div className="flex flex-col col-span-2">
-          <label className="text-xs">Terms</label>
-          <textarea
-            className="border rounded p-1 min-h-[60px]"
-            name="terms_condition"
-            value={header.terms_condition}
-            onChange={onHeader}
-            placeholder="Payment terms, delivery terms, etc."
-          />
-        </div>
-
-        <div className="flex flex-col">
-          <label className="text-xs">Party Balance</label>
-          <input
-            className="border rounded p-1 bg-gray-100"
-            name="party_balance"
-            value={fx(header.party_balance)}
-            readOnly
-          />
-        </div>
-      </div>
-
-      <div className="bg-black text-yellow-300 text-center text-2xl font-semibold py-2 mt-3 mb-2 rounded">
-        FINAL AMOUNT: {fx(totals.final)}
-      </div>
-
-      {/* Items */}
-      <div className="overflow-auto">
-        <table className="w-full text-sm border">
-          <thead className="bg-green-700 text-white">
-            <tr>
-              {[
-                "S.No",
-                "Item Name",
-                "HSNCode",
-                "Available (KG)", // Always show KG
-                "QTY",
-                "Unit",
-                "Rate (per KG)",
-                "Amount",
-                "Disc %",
-                "Per Qty Disc",
-                "Total Disc",
-                "GST%",
-                "GST Amt",
-                "FinalAmt",
-                "Actions",
-              ].map((h, idx) => (
-                <th key={`${h}-${idx}`} className="border px-2 py-1 text-left">
-                  {h}
-                </th>
+          <div className="flex flex-col">
+            <label className="text-xs">
+              {header.party_type === "vendor" ? "Firm/Vendor" : "Farmer"}
+            </label>
+            <select
+              className="border rounded p-1"
+              name={header.party_type === "vendor" ? "vendor_id" : "farmer_id"}
+              value={
+                header.party_type === "vendor"
+                  ? header.vendor_id
+                  : header.farmer_id
+              }
+              onChange={onPartyChange}
+            >
+              <option value="">Select</option>
+              {(header.party_type === "vendor" ? vendors : farmers).map((p) => (
+                <option
+                  key={String(p.id ?? p._id)}
+                  value={String(p.id ?? p._id)}
+                >
+                  {p.vendor_name || p.name || p.firm_name}
+                </option>
               ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r, i) => {
-              // Convert available (in grams) to KG for display
-              const availableInKG = convertGramsToKG(r.available || 0);
+            </select>
+          </div>
 
-              // Calculate based on purchase quantity and unit
-              const c = calc(r);
+          <div className="flex flex-col">
+            <label className="text-xs">ADDRESS</label>
+            <input
+              className="border rounded p-1"
+              name="address"
+              value={header.address}
+              onChange={onHeader}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label className="text-xs">MOBILE NO</label>
+            <input
+              className="border rounded p-1"
+              name="mobile_no"
+              minLength={10}
+              maxLength={10}
+              value={header.mobile_no}
+              onChange={onHeader}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label className="text-xs">GST No</label>
+            <input
+              className="border rounded p-1"
+              name="gst_no"
+              value={header.gst_no}
+              onChange={onHeader}
+            />
+          </div>
 
-              return (
-                <tr key={i} className="odd:bg-white even:bg-gray-50">
-                  <td className="border px-2 py-1">{i + 1}</td>
+          <div className="flex flex-col">
+            <label className="text-xs">PO No.</label>
+            <input
+              className="border rounded p-1"
+              name="po_no"
+              value={header.po_no}
+              onChange={onHeader}
+              placeholder="Enter PO No."
+            />
+          </div>
 
-                  <td className="border px-2 py-1">
-                    <div className="flex gap-1">
-                      <select
-                        className="border rounded p-1 w-44"
-                        value={r.product_id}
-                        onChange={(e) => onRow(i, "product_id", e.target.value)}
+          <div className="flex flex-col">
+            <label className="text-xs">Place of Supply</label>
+            <input
+              className="border rounded p-1"
+              name="place_of_supply"
+              value={header.place_of_supply}
+              onChange={onHeader}
+              placeholder="e.g., Maharashtra"
+            />
+          </div>
+
+          <div className="flex flex-col col-span-2">
+            <label className="text-xs">Terms</label>
+            <textarea
+              className="border rounded p-1 min-h-[60px]"
+              name="terms_condition"
+              value={header.terms_condition}
+              onChange={onHeader}
+              placeholder="Payment terms, delivery terms, etc."
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-xs">Party Balance</label>
+            <input
+              className="border rounded p-1 bg-gray-100"
+              name="party_balance"
+              value={fx(header.party_balance)}
+              readOnly
+            />
+          </div>
+        </div>
+
+        <div className="bg-black text-yellow-300 text-center text-2xl font-semibold py-2 mt-3 mb-2 rounded">
+          FINAL AMOUNT: {fx(totals.final)}
+        </div>
+
+        {/* Items */}
+        <div className="overflow-auto">
+          <table className="w-full text-sm border">
+            <thead className="bg-green-700 text-white">
+              <tr>
+                {[
+                  "S.No",
+                  "Item Name",
+                  "HSNCode",
+                  "Available (KG)", // Always show KG
+                  "QTY",
+                  "Unit",
+                  "Rate (per KG)",
+                  "Amount",
+                  "Disc %",
+                  "Per Qty Disc",
+                  "Total Disc",
+                  "GST%",
+                  "GST Amt",
+                  "FinalAmt",
+                  "Actions",
+                ].map((h, idx) => (
+                  <th
+                    key={`${h}-${idx}`}
+                    className="border px-2 py-1 text-left"
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r, i) => {
+                // Convert available (in grams) to KG for display
+                const availableInKG = convertGramsToKG(r.available || 0);
+
+                // Calculate based on purchase quantity and unit
+                const c = calc(r);
+
+                return (
+                  <tr key={i} className="odd:bg-white even:bg-gray-50">
+                    <td className="border px-2 py-1">{i + 1}</td>
+
+                    <td className="border px-2 py-1">
+                      <div className="flex gap-1">
+                        <select
+                          className="border rounded p-1 w-44"
+                          value={r.product_id}
+                          onChange={(e) =>
+                            onRow(i, "product_id", e.target.value)
+                          }
+                        >
+                          <option value="">Select</option>
+                          {normalizedProducts.map((p) => (
+                            <option key={p.id} value={String(p.id)}>
+                              {p.product_name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </td>
+
+                    <td className="border px-2 py-1">
+                      <input
+                        readOnly
+                        className="border cursor-not-allowed bg-gray-100 rounded p-1 w-24"
+                        value={r.hsn_code}
+                        onChange={(e) => onRow(i, "hsn_code", e.target.value)}
+                      />
+                    </td>
+
+                    <td className="border px-2 py-1">
+                      <input
+                        readOnly
+                        className="border rounded p-1 w-20 bg-gray-100"
+                        value={fx(availableInKG)}
+                        title={`Current stock: ${r.available || 0} grams (${fx(
+                          availableInKG
+                        )} KG)`}
+                      />
+                    </td>
+
+                    <td className="border px-2 py-1">
+                      <input
+                        type="number"
+                        className="border rounded p-1 w-20"
+                        value={r.qty === 0 ? " " : r.qty}
+                        onChange={(e) => onRow(i, "qty", e.target.value)}
+                      />
+                    </td>
+
+                    <td className="border px-2 py-1">
+                      <div className="flex gap-1">
+                        <select
+                          className="border rounded p-1 w-44"
+                          value={r.unit}
+                          required
+                          onChange={(e) => onRow(i, "unit", e.target.value)}
+                        >
+                          <option value="">select</option>
+                          <option value="ton">Ton</option>
+                          <option value="quantal">quantal</option>
+                          <option value="kg">KG</option>
+                          <option value="gram">Gram</option>
+                        </select>
+                      </div>
+                    </td>
+
+                    <td className="border px-2 py-1">
+                      <input
+                        type="number"
+                        className="border rounded p-1 w-20"
+                        value={r.rate === 0 ? " " : r.rate}
+                        onChange={(e) => onRow(i, "rate", e.target.value)}
+                      />
+                    </td>
+
+                    <td className="border px-2 py-1">{fx(c.base)}</td>
+
+                    <td className="border px-2 py-1">
+                      <input
+                        type="number"
+                        className="border rounded p-1 w-16"
+                        value={r.d1_percent === 0 ? "" : r?.d1_percent}
+                        onChange={(e) => onRow(i, "d1_percent", e.target.value)}
+                      />
+                    </td>
+
+                    <td className="border px-2 py-1">
+                      <input
+                        type="text"
+                        className="border rounded p-1 w-20 bg-gray-100"
+                        value={fx(c.perUnitDisc)}
+                        readOnly
+                      />
+                    </td>
+
+                    <td className="border px-2 py-1">
+                      <input
+                        type="text"
+                        className="border rounded p-1 w-24 bg-gray-100"
+                        value={fx(c.totalDisc)}
+                        readOnly
+                      />
+                    </td>
+
+                    <td className="border px-2 py-1">
+                      <input
+                        type="number"
+                        className="border rounded p-1 w-16"
+                        value={r.gst_percent === 0 ? "" : r.gst_percent}
+                        onChange={(e) =>
+                          onRow(i, "gst_percent", e.target.value)
+                        }
+                      />
+                    </td>
+
+                    <td className="border px-2 py-1">{fx(c.gstAmt)}</td>
+                    <td className="border px-2 py-1">{fx(c.final)}</td>
+
+                    <td className="border px-2 py-1 text-center">
+                      <button
+                        type="button"
+                        className="text-red-600 active:scale-95"
+                        onClick={() => removeRow(i)}
                       >
-                        <option value="">Select</option>
-                        {normalizedProducts.map((p) => (
-                          <option key={p.id} value={String(p.id)}>
-                            {p.product_name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </td>
+                        ❌
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
 
-                  <td className="border px-2 py-1">
-                    <input
-                      readOnly
-                      className="border cursor-not-allowed bg-gray-100 rounded p-1 w-24"
-                      value={r.hsn_code}
-                      onChange={(e) => onRow(i, "hsn_code", e.target.value)}
-                    />
-                  </td>
+            <tfoot>
+              <tr className="bg-gray-100 font-semibold">
+                <td className="border px-2 py-1" colSpan={6}>
+                  Totals (Total Qty: {fx(totals.quantityInKG)} KG)
+                </td>
+                <td className="border px-2 py-1">{fx(totals.base)}</td>
+                <td className="border px-2 py-1">—</td>
+                <td className="border px-2 py-1">—</td>
+                <td className="border px-2 py-1">{fx(totals.disc)}</td>
+                <td className="border px-2 py-1">—</td>
+                <td className="border px-2 py-1">{fx(totals.gst)}</td>
+                <td className="border px-2 py-1">{fx(totals.final)}</td>
+                <td className="border px-2 py-1"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
 
-                  <td className="border px-2 py-1">
-                    <input
-                      readOnly
-                      className="border rounded p-1 w-20 bg-gray-100"
-                      value={fx(availableInKG)}
-                      title={`Current stock: ${r.available || 0} grams (${fx(
-                        availableInKG
-                      )} KG)`}
-                    />
-                  </td>
-
-                  <td className="border px-2 py-1">
-                    <input
-                      type="number"
-                      className="border rounded p-1 w-20"
-                      value={r.qty === 0 ? " " : r.qty}
-                      onChange={(e) => onRow(i, "qty", e.target.value)}
-                    />
-                  </td>
-
-                  <td className="border px-2 py-1">
-                    <div className="flex gap-1">
-                      <select
-                        className="border rounded p-1 w-44"
-                        value={r.unit}
-                        required
-                        onChange={(e) => onRow(i, "unit", e.target.value)}
-                      >
-                        <option value="">select</option>
-                        <option value="ton">Ton</option>
-                        <option value="quantal">quantal</option>
-                        <option value="kg">KG</option>
-                        <option value="gram">Gram</option>
-                      </select>
-                    </div>
-                  </td>
-
-                  <td className="border px-2 py-1">
-                    <input
-                      type="number"
-                      className="border rounded p-1 w-20"
-                      value={r.rate === 0 ? " " : r.rate}
-                      onChange={(e) => onRow(i, "rate", e.target.value)}
-                    />
-                  </td>
-
-                  <td className="border px-2 py-1">{fx(c.base)}</td>
-
-                  <td className="border px-2 py-1">
-                    <input
-                      type="number"
-                      className="border rounded p-1 w-16"
-                      value={r.d1_percent === 0 ? "" : r?.d1_percent}
-                      onChange={(e) => onRow(i, "d1_percent", e.target.value)}
-                    />
-                  </td>
-
-                  <td className="border px-2 py-1">
-                    <input
-                      type="text"
-                      className="border rounded p-1 w-20 bg-gray-100"
-                      value={fx(c.perUnitDisc)}
-                      readOnly
-                    />
-                  </td>
-
-                  <td className="border px-2 py-1">
-                    <input
-                      type="text"
-                      className="border rounded p-1 w-24 bg-gray-100"
-                      value={fx(c.totalDisc)}
-                      readOnly
-                    />
-                  </td>
-
-                  <td className="border px-2 py-1">
-                    <input
-                      type="number"
-                      className="border rounded p-1 w-16"
-                      value={r.gst_percent === 0 ? "" : r.gst_percent}
-                      onChange={(e) => onRow(i, "gst_percent", e.target.value)}
-                    />
-                  </td>
-
-                  <td className="border px-2 py-1">{fx(c.gstAmt)}</td>
-                  <td className="border px-2 py-1">{fx(c.final)}</td>
-
-                  <td className="border px-2 py-1 text-center">
-                    <button
-                      type="button"
-                      className="text-red-600 active:scale-95"
-                      onClick={() => removeRow(i)}
-                    >
-                      ❌
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-
-          <tfoot>
-            <tr className="bg-gray-100 font-semibold">
-              <td className="border px-2 py-1" colSpan={6}>
-                Totals (Total Qty: {fx(totals.quantityInKG)} KG)
-              </td>
-              <td className="border px-2 py-1">{fx(totals.base)}</td>
-              <td className="border px-2 py-1">—</td>
-              <td className="border px-2 py-1">—</td>
-              <td className="border px-2 py-1">{fx(totals.disc)}</td>
-              <td className="border px-2 py-1">—</td>
-              <td className="border px-2 py-1">{fx(totals.gst)}</td>
-              <td className="border px-2 py-1">{fx(totals.final)}</td>
-              <td className="border px-2 py-1"></td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-
-      <div className="flex gap-2 mt-3">
-        <button
-          type="button"
-          onClick={addRow}
-          className="px-4 py-2 bg-blue-600 active:scale-95 text-white rounded"
-        >
-          Add Item
-        </button>
-        <button
-          type="submit"
-          disabled={!isFormValid || loading}
-          className={`px-6 py-2 active:scale-95 rounded text-white bg-green-700 transition-opacity duration-200 ${
-            !isFormValid || loading
-              ? "opacity-50 cursor-not-allowed"
-              : "opacity-100 cursor-pointer"
-          }`}
-        >
-          {loading
-            ? isEditMode
-              ? "Updating..."
-              : "Saving..."
-            : isEditMode
-            ? "Update"
-            : "Create PO"}
-        </button>
-      </div>
-    </form>
+        <div className="flex gap-2 mt-3">
+          <button
+            type="button"
+            onClick={addRow}
+            className="px-4 py-2 bg-blue-600 active:scale-95 text-white rounded"
+          >
+            Add Item
+          </button>
+          <button
+            type="submit"
+            disabled={!isFormValid || loading}
+            className={`px-6 py-2 active:scale-95 rounded text-white bg-green-700 transition-opacity duration-200 ${
+              !isFormValid || loading
+                ? "opacity-50 cursor-not-allowed"
+                : "opacity-100 cursor-pointer"
+            }`}
+          >
+            {loading
+              ? isEditMode
+                ? "Updating..."
+                : "Saving..."
+              : isEditMode
+              ? "Update"
+              : "Create PO"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
 
